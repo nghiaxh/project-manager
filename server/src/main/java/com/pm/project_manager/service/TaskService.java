@@ -1,0 +1,148 @@
+package com.pm.project_manager.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.pm.project_manager.dto.CommentDto;
+import com.pm.project_manager.dto.TaskDto;
+import com.pm.project_manager.model.*;
+import com.pm.project_manager.repository.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TaskService {
+    private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
+
+    @Transactional
+    public TaskDto createTask(Long projectId, TaskDto dto, Long creatorId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task task = new Task();
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setStatus(TaskStatus.TODO);
+        task.setDeadline(dto.getDeadline());
+        task.setProject(project);
+        task.setCreatedBy(creator);
+
+        if (dto.getAssigneeId() != null) {
+            User assignee = userRepository.findById(dto.getAssigneeId())
+                    .orElseThrow(() -> new RuntimeException("Assignee not found"));
+            task.setAssignee(assignee);
+        }
+
+        Task saved = taskRepository.save(task);
+
+        if (saved.getAssignee() != null) {
+            notificationService.sendNotification(
+                    saved.getAssignee().getId(),
+                    "Bạn được gán công việc: " + saved.getTitle());
+        }
+
+        return mapToDto(saved);
+    }
+
+    public List<TaskDto> getTasksByProject(Long projectId) {
+        return taskRepository.findByProjectId(projectId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public TaskDto getTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        return mapToDto(task);
+    }
+
+    @Transactional
+    public TaskDto updateTask(Long id, TaskDto dto) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        TaskStatus oldStatus = task.getStatus();
+
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setStatus(dto.getStatus());
+        task.setDeadline(dto.getDeadline());
+
+        if (dto.getAssigneeId() != null
+                && !dto.getAssigneeId().equals(task.getAssignee() != null ? task.getAssignee().getId() : null)) {
+            User assignee = userRepository.findById(dto.getAssigneeId())
+                    .orElseThrow(() -> new RuntimeException("Assignee not found"));
+            task.setAssignee(assignee);
+        }
+
+        Task updated = taskRepository.save(task);
+
+        if (oldStatus != updated.getStatus() && updated.getAssignee() != null) {
+            notificationService.sendNotification(
+                    updated.getAssignee().getId(),
+                    "Công việc '" + updated.getTitle() + "' chuyển sang trạng thái: " + updated.getStatus());
+        }
+
+        return mapToDto(updated);
+    }
+
+    @Transactional
+    public void deleteTask(Long id) {
+        taskRepository.deleteById(id);
+    }
+
+    @Transactional
+    public CommentDto addComment(Long taskId, Long userId, String content) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setTask(task);
+        comment.setUser(user);
+
+        Comment saved = commentRepository.save(comment);
+        return mapCommentToDto(saved);
+    }
+
+    public List<CommentDto> getComments(Long taskId) {
+        return commentRepository.findByTaskId(taskId).stream()
+                .map(this::mapCommentToDto)
+                .collect(Collectors.toList());
+    }
+
+    private TaskDto mapToDto(Task task) {
+        TaskDto dto = new TaskDto();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setStatus(task.getStatus());
+        dto.setDeadline(task.getDeadline());
+        dto.setProjectId(task.getProject().getId());
+        dto.setAssigneeId(task.getAssignee() != null ? task.getAssignee().getId() : null);
+        dto.setCreatedBy(task.getCreatedBy().getId());
+        dto.setCreatedAt(task.getCreatedAt());
+        dto.setUpdatedAt(task.getUpdatedAt());
+        return dto;
+    }
+
+    private CommentDto mapCommentToDto(Comment comment) {
+        CommentDto dto = new CommentDto();
+        dto.setId(comment.getId());
+        dto.setContent(comment.getContent());
+        dto.setTaskId(comment.getTask().getId());
+        dto.setUserId(comment.getUser().getId());
+        dto.setUsername(comment.getUser().getUsername());
+        dto.setCreatedAt(comment.getCreatedAt());
+        return dto;
+    }
+}

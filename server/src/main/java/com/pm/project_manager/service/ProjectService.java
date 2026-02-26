@@ -1,0 +1,114 @@
+package com.pm.project_manager.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.pm.project_manager.dto.ProjectDto;
+import com.pm.project_manager.dto.ProjectMemberDto;
+import com.pm.project_manager.model.*;
+import com.pm.project_manager.repository.ProjectMemberRepository;
+import com.pm.project_manager.repository.ProjectRepository;
+import com.pm.project_manager.repository.UserRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProjectService {
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+
+    @Transactional
+    public ProjectDto createProject(ProjectDto projectDto, Long creatorId) {
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Project project = new Project();
+        project.setName(projectDto.getName());
+        project.setDescription(projectDto.getDescription());
+        project.setCreatedBy(creator);
+
+        Project saved = projectRepository.save(project);
+
+        ProjectMember member = new ProjectMember();
+        member.setProject(saved);
+        member.setUser(creator);
+        member.setRole(ProjectRole.MANAGER);
+        projectMemberRepository.save(member);
+
+        return mapToDto(saved);
+    }
+
+    public List<ProjectDto> getProjectsByUser(Long userId) {
+        List<ProjectMember> memberships = projectMemberRepository.findByUserId(userId);
+        return memberships.stream()
+                .map(pm -> mapToDto(pm.getProject()))
+                .collect(Collectors.toList());
+    }
+
+    public ProjectDto getProject(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        return mapToDto(project);
+    }
+
+    @Transactional
+    public ProjectDto updateProject(Long id, ProjectDto dto) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setName(dto.getName());
+        project.setDescription(dto.getDescription());
+        return mapToDto(projectRepository.save(project));
+    }
+
+    @Transactional
+    public void deleteProject(Long id) {
+        projectRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void addMember(Long projectId, Long userId, ProjectRole role) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+            throw new RuntimeException("User already member of this project");
+        }
+
+        ProjectMember member = new ProjectMember();
+        member.setProject(project);
+        member.setUser(user);
+        member.setRole(role);
+        projectMemberRepository.save(member);
+    }
+
+    public List<ProjectMemberDto> getMembers(Long projectId) {
+        return projectMemberRepository.findByProjectId(projectId).stream()
+                .map(this::mapMemberToDto)
+                .collect(Collectors.toList());
+    }
+
+    private ProjectDto mapToDto(Project project) {
+        ProjectDto dto = new ProjectDto();
+        dto.setId(project.getId());
+        dto.setName(project.getName());
+        dto.setDescription(project.getDescription());
+        dto.setCreatedBy(project.getCreatedBy().getId());
+        dto.setCreatedAt(project.getCreatedAt());
+        dto.setUpdatedAt(project.getUpdatedAt());
+        return dto;
+    }
+
+    private ProjectMemberDto mapMemberToDto(ProjectMember pm) {
+        ProjectMemberDto dto = new ProjectMemberDto();
+        dto.setId(pm.getId());
+        dto.setProjectId(pm.getProject().getId());
+        dto.setUserId(pm.getUser().getId());
+        dto.setUsername(pm.getUser().getUsername());
+        dto.setRole(pm.getRole());
+        return dto;
+    }
+}
