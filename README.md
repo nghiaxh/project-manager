@@ -1,6 +1,6 @@
 # Hệ Thống Quản Lý Dự Án
 
-Ứng dụng quản lý dự án quy mô vừa, hỗ trợ các nhóm làm việc cộng tác hiệu quả trong việc phân công, theo dõi và hoàn thành công việc.
+Ứng dụng quản lý dự án quy mô vừa, hỗ trợ các nhóm làm việc cộng tác hiệu quả trong việc phân công, theo dõi và hoàn thành công việc..
 
 ## Cài Đặt
 
