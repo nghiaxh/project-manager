@@ -18,13 +18,13 @@ public class TaskService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
     @Transactional
-    public TaskDto createTask(Long projectId, TaskDto dto, Long creatorId) {
+    public TaskDto createTask(Long projectId, TaskDto dto, String creatorUsername) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User creator = userService.getUserByUsername(creatorUsername);
 
         Task task = new Task();
         task.setTitle(dto.getTitle());
@@ -99,11 +99,10 @@ public class TaskService {
     }
 
     @Transactional
-    public CommentDto addComment(Long taskId, Long userId, String content) {
+    public CommentDto addComment(Long taskId, String username, String content) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.getUserByUsername(username);
 
         Comment comment = new Comment();
         comment.setContent(content);

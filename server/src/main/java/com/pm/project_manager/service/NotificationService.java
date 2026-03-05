@@ -2,7 +2,6 @@ package com.pm.project_manager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import com.pm.project_manager.dto.NotificationDto;
 import com.pm.project_manager.model.Notification;
 import com.pm.project_manager.model.User;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public void sendNotification(Long userId, String message) {
         User user = userRepository.findById(userId)
@@ -29,8 +29,9 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    public List<NotificationDto> getUserNotifications(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+    public List<NotificationDto> getUserNotifications(String username) {
+        User user = userService.getUserByUsername(username);
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
