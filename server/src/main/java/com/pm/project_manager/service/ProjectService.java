@@ -18,11 +18,11 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final UserService userService;
 
     @Transactional
-    public ProjectDto createProject(ProjectDto projectDto, Long creatorId) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
+        User creator = userService.getUserByUsername(creatorUsername);
 
         Project project = new Project();
         project.setName(projectDto.getName());
@@ -40,8 +40,9 @@ public class ProjectService {
         return mapToDto(saved);
     }
 
-    public List<ProjectDto> getProjectsByUser(Long userId) {
-        List<ProjectMember> memberships = projectMemberRepository.findByUserId(userId);
+    public List<ProjectDto> getProjectsByUser(String username) {
+        User user = userService.getUserByUsername(username);
+        List<ProjectMember> memberships = projectMemberRepository.findByUserId(user.getId());
         return memberships.stream()
                 .map(pm -> mapToDto(pm.getProject()))
                 .collect(Collectors.toList());
@@ -68,7 +69,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMember(Long projectId, Long userId, ProjectRole role) {
+    public void addMember(Long projectId, Long userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
         User user = userRepository.findById(userId)
@@ -81,7 +82,7 @@ public class ProjectService {
         ProjectMember member = new ProjectMember();
         member.setProject(project);
         member.setUser(user);
-        member.setRole(role);
+        member.setRole(ProjectRole.MEMBER);
         projectMemberRepository.save(member);
     }
 
@@ -96,7 +97,7 @@ public class ProjectService {
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setDescription(project.getDescription());
-        dto.setCreatedBy(project.getCreatedBy().getId());
+        dto.setCreatedBy(project.getCreatedBy().getUsername());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
         return dto;
