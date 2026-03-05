@@ -1,5 +1,6 @@
 package com.pm.project_manager.controller;
 
+import com.pm.project_manager.config.JwtUtils;
 import com.pm.project_manager.dto.AuthResponse;
 import com.pm.project_manager.dto.LoginRequest;
 import com.pm.project_manager.dto.RegisterRequest;
@@ -13,17 +14,19 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
+    private final JwtUtils jwtUtils;
 
     @PostMapping("/register")
     public AuthResponse register(@RequestBody RegisterRequest request) {
         UserDto user = userService.register(request);
-        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail());
+        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), null);
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest request) {
         UserDto user = userService.login(request.getUsername(), request.getPassword());
-        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail());
+        String token = jwtUtils.generateToken(user.getUsername());
+        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), token);
     }
 
     @PostMapping("/logout")
