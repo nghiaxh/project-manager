@@ -69,13 +69,13 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMember(Long projectId, Long userId) {
+    public void addMember(Long projectId, String username) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+        if (projectMemberRepository.existsByProjectIdAndUserUsername(projectId, username)) {
             throw new RuntimeException("User already member of this project");
         }
 
