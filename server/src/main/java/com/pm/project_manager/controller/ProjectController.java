@@ -45,8 +45,13 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/members")
-    public void addMember(@PathVariable Long projectId, String username) {
+    public void addMember(@PathVariable Long projectId, @RequestParam String username) {
         projectService.addMember(projectId, username);
+    }
+
+    @DeleteMapping("/{projectId}/members/{userId}")
+    public void removeMember(@PathVariable Long projectId, @PathVariable Long userId) {
+        projectService.removeMember(projectId, userId);
     }
 
     @GetMapping("/{projectId}/members")
