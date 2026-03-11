@@ -57,4 +57,9 @@ public class UserService {
         dto.setEmail(user.getEmail());
         return dto;
     }
+
+    public UserDto getUserDtoByUsername(String username) {
+        User user = getUserByUsername(username);
+        return mapToDto(user);
+    }
 }

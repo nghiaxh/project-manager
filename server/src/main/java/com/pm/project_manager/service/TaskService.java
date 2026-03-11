@@ -29,7 +29,7 @@ public class TaskService {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
-        task.setStatus(TaskStatus.TODO);
+        task.setStatus(dto.getStatus());
         task.setDeadline(dto.getDeadline());
         task.setProject(project);
         task.setCreatedBy(creator);
