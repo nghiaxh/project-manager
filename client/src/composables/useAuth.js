@@ -2,8 +2,8 @@ import { ref, computed } from 'vue';
 import { login as apiLogin, register as apiRegister } from '../services/authService';
 import { getCurrentUser } from '../services/userService';
 
-const user = ref(JSON.parse(localStorage.getItem('user')) || null);
-const token = ref(localStorage.getItem('token') || null);
+const user = ref(JSON.parse(sessionStorage.getItem('user')) || null);
+const token = ref(sessionStorage.getItem('token') || null);
 
 export const authState = {
     user,
@@ -14,8 +14,8 @@ export const authState = {
         const data = await apiLogin(username, password);
         user.value = { id: data.userId, username: data.username, name: data.name, email: data.email };
         token.value = data.token;
-        localStorage.setItem('user', JSON.stringify(user.value));
-        localStorage.setItem('token', token.value);
+        sessionStorage.setItem('user', JSON.stringify(user.value));
+        sessionStorage.setItem('token', token.value);
     },
 
     async register(userData) {
@@ -25,13 +25,13 @@ export const authState = {
     logout() {
         user.value = null;
         token.value = null;
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
     },
 
     async fetchCurrentUser() {
         const u = await getCurrentUser();
         user.value = u;
-        localStorage.setItem('user', JSON.stringify(u));
+        sessionStorage.setItem('user', JSON.stringify(u));
     }
 };
