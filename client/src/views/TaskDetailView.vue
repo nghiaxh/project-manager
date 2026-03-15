@@ -3,22 +3,22 @@
     <div v-else>
         <div class="bg-white p-6 rounded shadow">
             <div class="flex justify-between items-start">
-                <button @click="router.push( `/projects/${ task.projectId }` )"
-                    class="text-blue-600 hover:underline text-lg">Quay lại</button>
-                <h2 class="text-2xl font-semibold">{{ task.title }}</h2>
-                <div class="space-x-4">
-                    <button @click="showEditModal = true" class="text-blue-500 text-lg cursor-pointer">Sửa</button>
-                    <button @click=" deleteTask( taskId )" class="text-red-500 text-lg cursor-pointer">Xóa task</button>
-                </div>
+                <button @click="router.push( `/projects/${ task.projectId }` )" class="btn btn-soft">Quay lại</button>
+                <button @click="showEditModal = true" class="btn btn-primary">Chỉnh sửa thông
+                    tin</button>
             </div>
+            <h2 class="text-2xl font-semibold mt-8">{{ task.title }}</h2>
             <p class="text-gray-700 mt-4">{{ task.description }}</p>
-            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div class="mt-8 grid gap-4 text-sm">
                 <div><span class="font-medium">Trạng thái:</span> {{ statusLabel }}</div>
-                <div><span class="font-medium">Hạn chót:</span> {{ task.deadline }}</div>
-                <div><span class="font-medium">Người được gán:</span> {{ assignee?.name || 'Chưa gán' }}</div>
+                <div><span class="font-medium">Hạn chót:</span> {{ new Date( task.deadline ).toLocaleDateString( "vi-VN"
+                )
+                    }}</div>
+                <div><span class="font-medium">Người được giao việc:</span> {{ assignee?.name || 'Chưa gán' }}</div>
                 <div><span class="font-medium">Người tạo:</span> {{ creator?.name }}</div>
             </div>
-            <CommentSection :taskId=" task.id " :comments=" comments " @comment-added=" handleCommentAdded " />
+            <CommentSection :taskId=" task.id " :comments=" comments " :members=" members "
+                @comment-added=" handleCommentAdded " />
         </div>
         <!-- Modal sửa task -->
         <div v-if=" showEditModal "
@@ -41,6 +41,7 @@ import { getUserById } from '../services/userService';
 import CommentSection from '../components/CommentSection.vue';
 import TaskForm from '../components/TaskForm.vue';
 import { authState } from '../composables/useAuth';
+import { push } from "notivue";
 
 const route = useRoute();
 const router = useRouter();
@@ -57,8 +58,8 @@ const showEditModal = ref(false);
 const statusLabels = {
     TODO: 'Cần làm',
     IN_PROGRESS: 'Đang làm',
+    IN_REVIEW: 'Chờ duyệt',
     DONE: 'Hoàn thành',
-    CANCELLED: 'Đã hủy'
 };
 
 const statusLabel = computed(() => statusLabels[task.value.status] || task.value.status);
@@ -67,6 +68,7 @@ onMounted(async () => {
     await loadTask();
     await loadComments();
     await loadMembers();
+
     loading.value = false;
 });
 
@@ -107,9 +109,10 @@ const updateTask = async (data) => {
     try {
         await updateTaskApi(taskId, data);
         showEditModal.value = false;
+        push.success('Cập nhật task thành công');
         await loadTask();
     } catch (error) {
-        alert('Không thể cập nhật task');
+        push.error('Không thể cập nhật task');
     }
 };
 

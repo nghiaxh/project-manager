@@ -1,16 +1,13 @@
 <template>
     <div>
-        <button @click="router.push( `/projects/${ projectId }` )" class="text-lg text-blue-600 hover:underline">
+        <button @click="router.push( `/projects/${ projectId }` )" class="btn btn-soft">
             Quay lại dự án
         </button>
-        <div class="flex justify-center">
-            <h2 class="text-2xl font-semibold mb-6">Thành viên dự án</h2>
-        </div>
-        <div class="mb-4 flex">
+        <h2 class="text-2xl font-semibold my-6">Thành viên dự án</h2>
+        <div class="mb-4 flex gap-4">
             <input v-model=" newMemberUsername " type="text" placeholder="Tên đăng nhập"
-                class="border rounded-l px-3 py-2 flex-1" />
-            <button @click=" addMember "
-                class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">Thêm</button>
+                class="input border rounded-l px-3 py-2 flex-1" />
+            <button @click=" addMember " class="btn btn-primary">Thêm thành viên</button>
         </div>
         <div v-if=" loading ">Đang tải...</div>
         <div v-else class="bg-white rounded shadow">
@@ -18,10 +15,10 @@
                 class="flex justify-between items-center p-4 border-b last:border-b-0">
                 <div>
                     <span class="font-medium">{{ member.username }}</span>
-                    <span class="ml-2 text-sm text-gray-600">({{ member.role }})</span>
+                    <span class="ml-2 text-sm text-gray-600">({{ statusLabels[ member.role ] }})</span>
                 </div>
                 <button v-if=" currentUserRole === 'MANAGER' && member.userId !== currentUserId "
-                    @click="removeMember( member.userId )" class="text-red-500 hover:underline">
+                    @click="removeMember( member.userId )" class="text-red-500 hover:underline cursor-pointer">
                     Xóa
                 </button>
             </div>
@@ -34,6 +31,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { authState } from '../composables/useAuth';
 import { getMembers, addMember as apiAddMember, removeMember as apiRemoveMember } from '../services/projectService';
+import { push } from "notivue";
 
 const route = useRoute();
 const router = useRouter();
@@ -48,6 +46,12 @@ const currentUserRole = computed(() => {
 const loading = ref(true);
 const members = ref([]);
 const newMemberUsername = ref('');
+
+const statuses = ['MANAGER', 'MEMBER'];
+const statusLabels = {
+    MANAGER: 'Quản lý',
+    MEMBER: 'Thành viên',
+};
 
 onMounted(async () => {
     await loadMembers();
@@ -66,18 +70,25 @@ const addMember = async () => {
     try {
         await apiAddMember(projectId, newMemberUsername.value);
         newMemberUsername.value = '';
+        push.success('Thêm thành viên thành công');
         await loadMembers();
     } catch (error) {
-        alert('Không thể thêm thành viên');
+        push.error({
+            title: 'Không thể thêm thành viên',
+            message: 'Vui lòng kiểm tra lại tên đăng nhập'
+        });
     }
 };
 
 const removeMember = async (userId) => {
     try {
-        await apiRemoveMember(projectId, userId);
-        await loadMembers();
+        if (confirm('Xác nhận xóa thành viên này?')) {
+            push.success('Xóa thành viên thành công')
+            await apiRemoveMember(projectId, userId);
+            await loadMembers();
+        }
     } catch (error) {
-        alert('Không thể xóa thành viên');
+        push.error('Không thể xóa thành viên');
     }
 };
 </script>

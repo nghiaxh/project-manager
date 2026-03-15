@@ -2,7 +2,11 @@
     <div v-if=" loading ">Đang tải...</div>
     <div v-else class="max-w-2xl mx-auto">
         <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-2xl font-semibold mb-6">Hồ sơ của tôi</h2>
+            <div class="avatar avatar-placeholder mb-8">
+                <div class="bg-indigo-600 text-neutral-content w-24 rounded-full">
+                    <span class="text-3xl">{{ ( user.name ).toString().slice( 0, 1 ).toUpperCase() }}</span>
+                </div>
+            </div>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Họ tên</label>
