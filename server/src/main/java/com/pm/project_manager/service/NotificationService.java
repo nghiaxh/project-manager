@@ -2,6 +2,8 @@ package com.pm.project_manager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.pm.project_manager.dto.NotificationDto;
 import com.pm.project_manager.model.Notification;
 import com.pm.project_manager.model.User;
@@ -41,6 +43,31 @@ public class NotificationService {
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         notif.setRead(true);
         notificationRepository.save(notif);
+    }
+
+    @Transactional
+    public void markAllAsRead(String username) {
+        User user = userService.getUserByUsername(username);
+        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndReadFalse(user.getId());
+        unreadNotifications.forEach(n -> n.setRead(true));
+        notificationRepository.saveAll(unreadNotifications);
+    }
+
+    @Transactional
+    public void deleteNotification(Long id, String username) {
+        Notification notif = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        if (!notif.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("You don't have permission to delete this notification");
+        }
+        notificationRepository.delete(notif);
+    }
+
+    @Transactional
+    public void deleteReadNotifications(String username) {
+        User user = userService.getUserByUsername(username);
+        List<Notification> readNotifications = notificationRepository.findByUserIdAndReadTrue(user.getId());
+        notificationRepository.deleteAll(readNotifications);
     }
 
     private NotificationDto mapToDto(Notification notif) {
