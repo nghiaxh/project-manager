@@ -1,18 +1,21 @@
 package com.pm.project_manager.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.pm.project_manager.dto.CommentDto;
 import com.pm.project_manager.dto.TaskDto;
 import com.pm.project_manager.model.*;
 import com.pm.project_manager.repository.*;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -45,7 +48,7 @@ public class TaskService {
         if (saved.getAssignee() != null) {
             notificationService.sendNotification(
                     saved.getAssignee().getId(),
-                    "Bạn được gán công việc: " + saved.getTitle());
+                    "Bạn được giao công việc: " + saved.getTitle());
         }
 
         return mapToDto(saved);
@@ -85,9 +88,10 @@ public class TaskService {
         Task updated = taskRepository.save(task);
 
         if (oldStatus != updated.getStatus() && updated.getAssignee() != null) {
+            String statusText = getStatusText(updated.getStatus());
             notificationService.sendNotification(
                     updated.getAssignee().getId(),
-                    "Công việc '" + updated.getTitle() + "' chuyển sang trạng thái: " + updated.getStatus());
+                    "Công việc '" + updated.getTitle() + "' đã chuyển sang trạng thái: " + statusText);
         }
 
         return mapToDto(updated);
@@ -117,6 +121,21 @@ public class TaskService {
         return commentRepository.findByTaskId(taskId).stream()
                 .map(this::mapCommentToDto)
                 .collect(Collectors.toList());
+    }
+
+    private String getStatusText(TaskStatus status) {
+        switch (status) {
+            case TODO:
+                return "Cần làm";
+            case IN_PROGRESS:
+                return "Đang làm";
+            case IN_REVIEW:
+                return "Chờ duyệt";
+            case DONE:
+                return "Hoàn thành";
+            default:
+                return status.toString();
+        }
     }
 
     private TaskDto mapToDto(Task task) {
