@@ -1,7 +1,6 @@
 <template>
-    <header class="bg-white shadow-sm">
-        <div class="px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-800">{{ pageTitle }}</h1>
+    <header class="bg-white">
+        <div class="px-4 py-3 flex justify-end shadow-2xl">
             <div class="flex items-center space-x-4">
                 <router-link to="/notifications" class="text-gray-600 hover:text-gray-900">
                     <span class="relative">
@@ -13,9 +12,8 @@
                     </span>
                 </router-link>
                 <router-link to="/profile" class="text-gray-600 hover:text-gray-900">
-                    {{ authState.user.value?.name }}
+                    Xin chào, {{ authState.user.value?.name }}
                 </router-link>
-                <button @click=" logout " class="text-gray-600 hover:text-gray-900">Đăng xuất</button>
             </div>
         </div>
     </header>
@@ -31,20 +29,6 @@ import { getUserNotifications } from '../services/notificationService';
 const route = useRoute();
 const router = useRouter();
 const unreadCount = ref(0);
-
-const pageTitle = computed(() => {
-    const titles = {
-        '/projects': 'Dự án của tôi',
-        '/notifications': 'Thông báo',
-        '/profile': 'Hồ sơ',
-    };
-    return titles[route.path] || 'Quản lý dự án';
-});
-
-const logout = () => {
-    authState.logout();
-    router.push('/');
-};
 
 const fetchUnreadCount = async () => {
     if (!authState.isAuthenticated.value) return;

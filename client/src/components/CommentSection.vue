@@ -1,10 +1,10 @@
 <template>
-    <div class="mt-4">
+    <div class="mt-8">
         <h3 class="font-semibold mb-2">Bình luận</h3>
         <div class="space-y-2 mb-4">
-            <div v-for=" comment in comments " :key=" comment.id " class="bg-gray-50 p-2 rounded">
+            <div v-for=" comment in comments " :key=" comment.id " class="bg-base-200 p-2 rounded-xl">
                 <div class="flex justify-between text-sm text-gray-600">
-                    <span class="font-medium">{{ comment.username }}</span>
+                    <span class="font-bold">{{ comment.username }}</span>
                     <span>{{ new Date( comment.createdAt ).toLocaleString() }}</span>
                 </div>
                 <p class="mt-1">{{ comment.content }}</p>
@@ -12,9 +12,9 @@
         </div>
         <div class="flex items-center">
             <input v-model=" newComment " type="text" placeholder="Thêm bình luận..."
-                class="flex-1 border rounded-l px-3 py-2 focus:outline-none">
+                class="input flex-1 border rounded-l px-3 py-2 focus:outline-none">
             <button @click=" addComment "
-                class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">Gửi</button>
+                class="btn btn-primary">Gửi</button>
         </div>
     </div>
 </template>
