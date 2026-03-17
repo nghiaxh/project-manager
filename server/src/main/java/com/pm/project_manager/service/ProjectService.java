@@ -18,11 +18,11 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final UserService userService;
 
-    @Transactional
-    public ProjectDto createProject(ProjectDto projectDto, Long creatorId) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+   @Transactional
+    public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
+        User creator = userService.getUserByUsername(creatorUsername);
 
         Project project = new Project();
         project.setName(projectDto.getName());
