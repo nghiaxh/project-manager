@@ -5,6 +5,8 @@ import com.pm.project_manager.dto.ProjectMemberDto;
 import com.pm.project_manager.model.ProjectRole;
 import com.pm.project_manager.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +23,11 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ProjectDto createProject(@RequestBody ProjectDto dto, @RequestParam Long createdBy) {
-        return projectService.createProject(dto, createdBy);
+    public ProjectDto createProject(
+            @RequestBody ProjectDto dto,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        String username = currentUser.getUsername();
+        return projectService.createProject(dto, username);
     }
 
     @GetMapping("/{id}")
