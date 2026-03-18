@@ -1,18 +1,20 @@
 package com.pm.project_manager.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.pm.project_manager.dto.CommentDto;
 import com.pm.project_manager.dto.TaskDto;
 import com.pm.project_manager.model.*;
 import com.pm.project_manager.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -29,7 +31,7 @@ public class TaskService {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
-        task.setStatus(TaskStatus.TODO);
+        task.setStatus(dto.getStatus());
         task.setDeadline(dto.getDeadline());
         task.setProject(project);
         task.setCreatedBy(creator);
