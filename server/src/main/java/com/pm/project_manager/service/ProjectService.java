@@ -40,8 +40,9 @@ public class ProjectService {
         return mapToDto(saved);
     }
 
-    public List<ProjectDto> getProjectsByUser(Long userId) {
-        List<ProjectMember> memberships = projectMemberRepository.findByUserId(userId);
+    public List<ProjectDto> getProjectsByUser(String username) {
+        User user = userService.getUserByUsername(username);
+        List<ProjectMember> memberships = projectMemberRepository.findByUserId(user.getId());
         return memberships.stream()
                 .map(pm -> mapToDto(pm.getProject()))
                 .collect(Collectors.toList());
@@ -68,21 +69,36 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMember(Long projectId, Long userId, ProjectRole role) {
+    public void addMember(Long projectId, String username) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
             throw new RuntimeException("User already member of this project");
         }
 
         ProjectMember member = new ProjectMember();
         member.setProject(project);
         member.setUser(user);
-        member.setRole(role);
+        member.setRole(ProjectRole.MEMBER);
         projectMemberRepository.save(member);
+    }
+
+    @Transactional
+    public void removeMember(Long projectId, Long userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new RuntimeException("User is not a member of this project"));
+
+        if (member.getUser().getId().equals(project.getCreatedBy().getId())) {
+            throw new RuntimeException("Cannot remove the project creator");
+        }
+
+        projectMemberRepository.delete(member);
     }
 
     public List<ProjectMemberDto> getMembers(Long projectId) {
@@ -96,7 +112,7 @@ public class ProjectService {
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setDescription(project.getDescription());
-        dto.setCreatedBy(project.getCreatedBy().getId());
+        dto.setCreatedBy(project.getCreatedBy().getUsername());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
         return dto;
