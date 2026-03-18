@@ -4,6 +4,8 @@ import com.pm.project_manager.dto.CommentDto;
 import com.pm.project_manager.dto.TaskDto;
 import com.pm.project_manager.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class TaskController {
+
     private final TaskService taskService;
 
     @GetMapping("/projects/{projectId}/tasks")
@@ -20,8 +23,12 @@ public class TaskController {
     }
 
     @PostMapping("/projects/{projectId}/tasks")
-    public TaskDto createTask(@PathVariable Long projectId, @RequestBody TaskDto dto, @RequestParam Long createdBy) {
-        return taskService.createTask(projectId, dto, createdBy);
+    public TaskDto createTask(
+            @PathVariable Long projectId,
+            @RequestBody TaskDto dto,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        String username = currentUser.getUsername();
+        return taskService.createTask(projectId, dto, username);
     }
 
     @GetMapping("/tasks/{id}")
@@ -40,8 +47,12 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/{taskId}/comments")
-    public CommentDto addComment(@PathVariable Long taskId, @RequestParam Long userId, @RequestBody String content) {
-        return taskService.addComment(taskId, userId, content);
+    public CommentDto addComment(
+            @PathVariable Long taskId,
+            @RequestBody String content,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        String username = currentUser.getUsername();
+        return taskService.addComment(taskId, username, content);
     }
 
     @GetMapping("/tasks/{taskId}/comments")
