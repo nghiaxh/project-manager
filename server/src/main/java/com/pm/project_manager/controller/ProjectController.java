@@ -18,8 +18,9 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
-    public List<ProjectDto> getUserProjects(@RequestParam Long userId) {
-        return projectService.getProjectsByUser(userId);
+    public List<ProjectDto> getUserProjects(@AuthenticationPrincipal UserDetails currentUser) {
+        String username = currentUser.getUsername();
+        return projectService.getProjectsByUser(username);
     }
 
     @PostMapping
@@ -46,8 +47,12 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/members")
-    public void addMember(@PathVariable Long projectId, @RequestParam Long userId, @RequestParam ProjectRole role) {
-        projectService.addMember(projectId, userId, role);
+    public void addMember(@PathVariable Long projectId, @RequestParam String username) {
+        projectService.addMember(projectId, username);
+    }
+    @DeleteMapping("/{projectId}/members/{userId}")
+    public void removeMember(@PathVariable Long projectId, @PathVariable Long userId) {
+        projectService.removeMember(projectId, userId);
     }
 
     @GetMapping("/{projectId}/members")

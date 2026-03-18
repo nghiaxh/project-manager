@@ -8,7 +8,7 @@ public class ProjectDto {
     private Long id;
     private String name;
     private String description;
-    private Long createdBy;
+    private String createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
