@@ -5,7 +5,6 @@ import com.pm.project_manager.dto.TaskDto;
 import com.pm.project_manager.model.*;
 import com.pm.project_manager.repository.*;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +19,7 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final NotificationService notificationService;
     private final UserService userService;
 
@@ -87,11 +87,15 @@ public class TaskService {
 
         Task updated = taskRepository.save(task);
 
-        if (oldStatus != updated.getStatus() && updated.getAssignee() != null) {
+        if (oldStatus != updated.getStatus()) {
             String statusText = getStatusText(updated.getStatus());
-            notificationService.sendNotification(
-                    updated.getAssignee().getId(),
-                    "Công việc '" + updated.getTitle() + "' đã chuyển sang trạng thái: " + statusText);
+            String message = String.format("Công việc '%s' đã chuyển sang trạng thái: %s",
+                    updated.getTitle(), statusText);
+
+            List<ProjectMember> members = projectMemberRepository.findByProjectId(updated.getProject().getId());
+            for (ProjectMember member : members) {
+                notificationService.sendNotification(member.getUser().getId(), message);
+            }
         }
 
         return mapToDto(updated);
@@ -114,6 +118,16 @@ public class TaskService {
         comment.setUser(user);
 
         Comment saved = commentRepository.save(comment);
+
+        String commentMsg = String.format("%s đã bình luận: %s", user.getUsername(),
+                content);
+        List<ProjectMember> members = projectMemberRepository.findByProjectId(task.getProject().getId());
+        members.forEach(m -> {
+            if (!m.getUser().getId().equals(user.getId())) {
+                notificationService.sendNotification(m.getUser().getId(), commentMsg);
+            }
+        });
+
         return mapCommentToDto(saved);
     }
 
