@@ -35,13 +35,16 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public ProjectDto updateProject(@PathVariable Long id, @RequestBody ProjectDto dto) {
-        return projectService.updateProject(id, dto);
+    public ProjectDto updateProject(@PathVariable Long id,
+            @RequestBody ProjectDto dto,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        return projectService.updateProject(id, dto, currentUser.getUsername());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id) {
-        projectService.deleteProject(id);
+    public void deleteProject(@PathVariable Long id,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        projectService.deleteProject(id, currentUser.getUsername());
     }
 
     @PostMapping("/{projectId}/members")

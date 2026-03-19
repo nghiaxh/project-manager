@@ -1,5 +1,6 @@
 package com.pm.project_manager.controller;
 
+import com.pm.project_manager.dto.UpdateUserRequest;
 import com.pm.project_manager.dto.UserDto;
 import com.pm.project_manager.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,11 @@ public class UserController {
     public UserDto getCurrentUser(@AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();
         return userService.getUserDtoByUsername(username);
+    }
+
+    @PutMapping("/me")
+    public UserDto updateCurrentUser(@AuthenticationPrincipal UserDetails currentUser,
+            @RequestBody UpdateUserRequest request) {
+        return userService.updateCurrentUser(currentUser.getUsername(), request);
     }
 }
