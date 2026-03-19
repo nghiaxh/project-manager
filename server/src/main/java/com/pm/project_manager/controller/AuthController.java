@@ -25,9 +25,4 @@ public class AuthController {
         UserDto user = userService.login(request.getUsername(), request.getPassword());
         return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail());
     }
-
-    @PostMapping("/logout")
-    public String logout() {
-        return "Logged out";
-    }
 }
