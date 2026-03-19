@@ -1,12 +1,13 @@
 package com.pm.project_manager.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.pm.project_manager.dto.CommentDto;
 import com.pm.project_manager.dto.TaskDto;
 import com.pm.project_manager.model.*;
 import com.pm.project_manager.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
