@@ -4,8 +4,11 @@
         <div class="bg-white p-6 rounded shadow">
             <div class="flex justify-between items-start">
                 <button @click="router.push( `/projects/${ task.projectId }` )" class="btn btn-soft">Quay lại</button>
-                <button @click="showEditModal = true" class="btn btn-primary">Chỉnh sửa thông
-                    tin</button>
+                <div class="space-x-4">
+                    <button @click="handleDeleteTask(taskId)" class="btn btn-error text-white">Xóa công việc</button>
+                    <button @click="showEditModal = true" class="btn btn-primary">Chỉnh sửa thông
+                        tin</button>
+                </div>
             </div>
             <h2 class="text-2xl font-semibold mt-8">{{ task.title }}</h2>
             <p class="text-gray-700 mt-4">{{ task.description }}</p>
@@ -116,10 +119,11 @@ const updateTask = async (data) => {
     }
 };
 
-const deleteTask = async (taskId) => {
+const handleDeleteTask = async (taskId) => {
     try {
         if (confirm("Xác nhận xóa task?")) {
             await deleteTaskApi(taskId);
+            push.success("Xóa công việc thành công")
             router.push(`/projects/${task.value.projectId}`);
         }
     } catch (error) {

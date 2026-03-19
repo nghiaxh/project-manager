@@ -4,7 +4,7 @@
             Quay lại dự án
         </button>
         <h2 class="text-2xl font-semibold my-6">Thành viên dự án</h2>
-        <div class="mb-4 flex gap-4">
+        <div v-if=" canManage " class="mb-4 flex gap-4">
             <input v-model=" newMemberUsername " type="text" placeholder="Tên đăng nhập"
                 class="input border rounded-l px-3 py-2 flex-1" />
             <button @click=" addMember " class="btn btn-primary">Thêm thành viên</button>
@@ -30,11 +30,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { authState } from '../composables/useAuth';
-import { getMembers, addMember as apiAddMember, removeMember as apiRemoveMember } from '../services/projectService';
+import { getMembers, addMember as apiAddMember, removeMember as apiRemoveMember, getProject } from '../services/projectService';
 import { push } from "notivue";
 
 const route = useRoute();
 const router = useRouter();
+const project = ref(null);
 const projectId = Number(route.params.id);
 
 const currentUserId = computed(() => authState.user.value?.id);
@@ -55,7 +56,14 @@ const statusLabels = {
 
 onMounted(async () => {
     await loadMembers();
+    await loadProject();
     loading.value = false;
+});
+
+const canManage = computed(() => {
+    const currentUserId = authState.user.value?.id;
+    const currentMember = members.value.find(m => m.userId === currentUserId);
+    return currentMember && (currentMember.role === 'MANAGER' || currentMember.role === 'ADMIN');
 });
 
 const loadMembers = async () => {
@@ -83,12 +91,21 @@ const addMember = async () => {
 const removeMember = async (userId) => {
     try {
         if (confirm('Xác nhận xóa thành viên này?')) {
-            push.success('Xóa thành viên thành công')
+            push.success('Xóa thành viên thành công');
             await apiRemoveMember(projectId, userId);
             await loadMembers();
         }
     } catch (error) {
         push.error('Không thể xóa thành viên');
+    }
+};
+
+const loadProject = async () => {
+    if (!authState.isAuthenticated.value) return;
+    try {
+        project.value = await getProject(projectId);
+    } catch (error) {
+        push.error('Không thể tải dự án');
     }
 };
 </script>
