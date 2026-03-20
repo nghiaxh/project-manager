@@ -28,9 +28,4 @@ public class AuthController {
         String token = jwtUtils.generateToken(user.getUsername());
         return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), token);
     }
-
-    @PostMapping("/logout")
-    public String logout() {
-        return "Logged out";
-    }
 }

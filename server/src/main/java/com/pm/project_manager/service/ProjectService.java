@@ -20,7 +20,11 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
 
+<<<<<<< HEAD
     @Transactional
+=======
+   @Transactional
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
     public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
         User creator = userService.getUserByUsername(creatorUsername);
 
@@ -75,7 +79,11 @@ public class ProjectService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+<<<<<<< HEAD
         if (projectMemberRepository.existsByProjectIdAndUserUsername(projectId, username)) {
+=======
+        if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
             throw new RuntimeException("User already member of this project");
         }
 
@@ -84,6 +92,21 @@ public class ProjectService {
         member.setUser(user);
         member.setRole(ProjectRole.MEMBER);
         projectMemberRepository.save(member);
+    }
+
+    @Transactional
+    public void removeMember(Long projectId, Long userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new RuntimeException("User is not a member of this project"));
+
+        if (member.getUser().getId().equals(project.getCreatedBy().getId())) {
+            throw new RuntimeException("Cannot remove the project creator");
+        }
+
+        projectMemberRepository.delete(member);
     }
 
     public List<ProjectMemberDto> getMembers(Long projectId) {

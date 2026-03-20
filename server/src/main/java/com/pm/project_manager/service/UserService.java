@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import com.pm.project_manager.dto.RegisterRequest;
 import com.pm.project_manager.dto.UserDto;
 import com.pm.project_manager.model.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.pm.project_manager.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -42,11 +44,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return mapToDto(user);
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
     private UserDto mapToDto(User user) {
