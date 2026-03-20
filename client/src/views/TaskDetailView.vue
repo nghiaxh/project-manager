@@ -21,7 +21,7 @@
                 <div><span class="font-medium">Người tạo:</span> {{ creator?.name }}</div>
             </div>
             <CommentSection :taskId=" task.id " :comments=" comments " :members=" members "
-                @comment-added=" handleCommentAdded " />
+                @comment-added=" handleCommentAdded " @comment-deleted="handleCommentDeleted" />
         </div>
         <!-- Modal sửa task -->
         <div v-if=" showEditModal "
@@ -106,6 +106,10 @@ const loadMembers = async () => {
 
 const handleCommentAdded = (comment) => {
     comments.value.push(comment);
+};
+
+const handleCommentDeleted = (commentId) => {
+    comments.value = comments.value.filter(c => c.id !== commentId);
 };
 
 const updateTask = async (data) => {

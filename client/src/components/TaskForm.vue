@@ -2,11 +2,13 @@
     <form @submit.prevent=" handleSubmit " class="space-y-4">
         <div>
             <label class="label block text-sm font-medium">Tiêu đề</label>
-            <input v-model=" form.title " type="text" required class="input w-full border rounded px-3 py-2" placeholder="Tiêu đề"/>
+            <input v-model=" form.title " type="text" required class="input w-full border rounded px-3 py-2"
+                placeholder="Tiêu đề" />
         </div>
         <div>
             <label class="label block text-sm font-medium">Mô tả</label>
-            <input v-model=" form.description " rows="3" class="input w-full border rounded px-3 py-2" placeholder="Mô tả"/>
+            <input v-model=" form.description " rows="3" class="input w-full border rounded px-3 py-2"
+                placeholder="Mô tả" />
         </div>
         <div>
             <label class="label block text-sm font-medium">Trạng thái công việc</label>
@@ -24,14 +26,14 @@
         <div>
             <label class="label block text-sm font-medium">Người được giao việc</label>
             <select v-model=" form.assigneeId " class="input w-full border rounded px-3 py-2">
+                <option :value=" null ">Chưa gán</option>
                 <option v-for=" member in members " :key=" member.userId " :value=" member.userId ">
                     {{ member.username }}
                 </option>
             </select>
         </div>
         <div class="flex justify-end space-x-2">
-            <button type="button" @click="$emit( 'cancel' )"
-                class="btn btn-soft">Hủy</button>
+            <button type="button" @click="$emit( 'cancel' )" class="btn btn-soft">Hủy</button>
             <button type="submit" class="btn btn-primary">Lưu</button>
         </div>
     </form>

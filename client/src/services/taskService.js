@@ -31,6 +31,10 @@ export const addComment = async (taskId, content) => {
     return response.data;
 };
 
+export const deleteComment = async (id) => {
+    await api.delete(`/comments/${id}`);
+};
+
 export const getComments = async (taskId) => {
     const response = await api.get(`/tasks/${taskId}/comments`);
     return response.data;
