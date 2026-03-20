@@ -23,8 +23,12 @@ public class TaskController {
     }
 
     @PostMapping("/projects/{projectId}/tasks")
+<<<<<<< HEAD
+    public TaskDto createTask(@PathVariable Long projectId,
+=======
     public TaskDto createTask(
             @PathVariable Long projectId,
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
             @RequestBody TaskDto dto,
             @AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();
@@ -47,8 +51,12 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/{taskId}/comments")
+<<<<<<< HEAD
+    public CommentDto addComment(@PathVariable Long taskId,
+=======
     public CommentDto addComment(
             @PathVariable Long taskId,
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
             @RequestBody String content,
             @AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();

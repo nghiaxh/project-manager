@@ -1,6 +1,7 @@
 package com.pm.project_manager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pm.project_manager.dto.RegisterRequest;
 import com.pm.project_manager.dto.UserDto;
@@ -42,16 +43,6 @@ public class UserService {
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return mapToDto(user);
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-    }
-
-    public UserDto getUserDtoByUsername(String username) {
-        User user = getUserByUsername(username);
         return mapToDto(user);
     }
 

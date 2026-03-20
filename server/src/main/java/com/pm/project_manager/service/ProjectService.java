@@ -20,7 +20,11 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
 
+<<<<<<< HEAD
+    @Transactional
+=======
    @Transactional
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
     public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
         User creator = userService.getUserByUsername(creatorUsername);
 
@@ -75,7 +79,11 @@ public class ProjectService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+<<<<<<< HEAD
+        if (projectMemberRepository.existsByProjectIdAndUserUsername(projectId, username)) {
+=======
         if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
+>>>>>>> d17e24c3d68b7dcf495f7b4fda3c004d4c1c759e
             throw new RuntimeException("User already member of this project");
         }
 
