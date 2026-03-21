@@ -19,6 +19,7 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final NotificationService notificationService;
     private final UserService userService;
 
@@ -47,7 +48,7 @@ public class TaskService {
         if (saved.getAssignee() != null) {
             notificationService.sendNotification(
                     saved.getAssignee().getId(),
-                    "Bạn được gán công việc: " + saved.getTitle());
+                    "Bạn được giao công việc: " + saved.getTitle());
         }
 
         return mapToDto(saved);
@@ -86,10 +87,15 @@ public class TaskService {
 
         Task updated = taskRepository.save(task);
 
-        if (oldStatus != updated.getStatus() && updated.getAssignee() != null) {
-            notificationService.sendNotification(
-                    updated.getAssignee().getId(),
-                    "Công việc '" + updated.getTitle() + "' chuyển sang trạng thái: " + updated.getStatus());
+        if (oldStatus != updated.getStatus()) {
+            String statusText = getStatusText(updated.getStatus());
+            String message = String.format("Công việc '%s' đã chuyển sang trạng thái: %s",
+                    updated.getTitle(), statusText);
+
+            List<ProjectMember> members = projectMemberRepository.findByProjectId(updated.getProject().getId());
+            for (ProjectMember member : members) {
+                notificationService.sendNotification(member.getUser().getId(), message);
+            }
         }
 
         return mapToDto(updated);
@@ -112,6 +118,16 @@ public class TaskService {
         comment.setUser(user);
 
         Comment saved = commentRepository.save(comment);
+
+        String commentMsg = String.format("%s đã bình luận: %s", user.getUsername(),
+                content);
+        List<ProjectMember> members = projectMemberRepository.findByProjectId(task.getProject().getId());
+        members.forEach(m -> {
+            if (!m.getUser().getId().equals(user.getId())) {
+                notificationService.sendNotification(m.getUser().getId(), commentMsg);
+            }
+        });
+
         return mapCommentToDto(saved);
     }
 
@@ -119,6 +135,21 @@ public class TaskService {
         return commentRepository.findByTaskId(taskId).stream()
                 .map(this::mapCommentToDto)
                 .collect(Collectors.toList());
+    }
+
+    private String getStatusText(TaskStatus status) {
+        switch (status) {
+            case TODO:
+                return "Cần làm";
+            case IN_PROGRESS:
+                return "Đang làm";
+            case IN_REVIEW:
+                return "Chờ duyệt";
+            case DONE:
+                return "Hoàn thành";
+            default:
+                return status.toString();
+        }
     }
 
     private TaskDto mapToDto(Task task) {

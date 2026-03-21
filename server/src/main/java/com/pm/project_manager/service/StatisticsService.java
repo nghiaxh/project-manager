@@ -20,8 +20,8 @@ public class StatisticsService {
         stats.put("total", (long) tasks.size());
         stats.put("todo", tasks.stream().filter(t -> t.getStatus() == TaskStatus.TODO).count());
         stats.put("inProgress", tasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS).count());
+        stats.put("inReview", tasks.stream().filter(t -> t.getStatus() == TaskStatus.IN_REVIEW).count());
         stats.put("done", tasks.stream().filter(t -> t.getStatus() == TaskStatus.DONE).count());
-        stats.put("cancelled", tasks.stream().filter(t -> t.getStatus() == TaskStatus.CANCELLED).count());
         return stats;
     }
 }
