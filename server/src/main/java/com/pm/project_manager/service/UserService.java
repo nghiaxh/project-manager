@@ -19,7 +19,7 @@ public class UserService {
 
     public UserDto register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("Username already exists !");
         }
 
         User user = new User();
