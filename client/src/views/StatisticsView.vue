@@ -188,14 +188,14 @@ const conicGradientStyle = computed(() => {
 
 onMounted(async () => {
     if (!authState.isAuthenticated.value) {
-        error.value = 'Bạn cần đăng nhập để xem thống kê';
+        error.value = 'Bạn cần đăng nhập để xem thống kê !';
         loading.value = false;
         return;
     }
     try {
         stats.value = await getProjectStatistics(projectId);
     } catch (err) {
-        error.value = 'Không thể tải thống kê. Vui lòng thử lại sau.';
+        error.value = 'Không thể tải thống kê. Vui lòng thử lại sau !';
     } finally {
         loading.value = false;
     }

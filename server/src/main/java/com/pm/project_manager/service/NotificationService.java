@@ -22,7 +22,7 @@ public class NotificationService {
 
     public void sendNotification(Long userId, String message) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
         Notification notif = new Notification();
         notif.setMessage(message);
@@ -40,7 +40,7 @@ public class NotificationService {
 
     public void markAsRead(Long notificationId) {
         Notification notif = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new RuntimeException("Notification not found!"));
         notif.setRead(true);
         notificationRepository.save(notif);
     }
@@ -56,9 +56,9 @@ public class NotificationService {
     @Transactional
     public void deleteNotification(Long id, String username) {
         Notification notif = notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new RuntimeException("Notification not found!"));
         if (!notif.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("You don't have permission to delete this notification");
+            throw new RuntimeException("You don't have permission to delete this notification!");
         }
         notificationRepository.delete(notif);
     }

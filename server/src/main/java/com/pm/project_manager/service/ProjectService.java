@@ -70,7 +70,7 @@ public class ProjectService {
     @Transactional
     public ProjectDto updateProject(Long id, ProjectDto dto, String currentUsername) {
         if (!isProjectAdminOrManager(id, currentUsername)) {
-            throw new RuntimeException("You don't have permission to update this project");
+            throw new RuntimeException("You don't have permission to update this project!");
         }
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
@@ -82,7 +82,7 @@ public class ProjectService {
     @Transactional
     public void deleteProject(Long id, String currentUsername) {
         if (!isProjectAdminOrManager(id, currentUsername)) {
-            throw new RuntimeException("You don't have permission to delete this project");
+            throw new RuntimeException("You don't have permission to delete this project!");
         }
         projectRepository.deleteById(id);
     }
