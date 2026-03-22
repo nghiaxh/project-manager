@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class TaskController {
-
     private final TaskService taskService;
 
     @GetMapping("/projects/{projectId}/tasks")
@@ -23,8 +22,7 @@ public class TaskController {
     }
 
     @PostMapping("/projects/{projectId}/tasks")
-    public TaskDto createTask(
-            @PathVariable Long projectId,
+    public TaskDto createTask(@PathVariable Long projectId,
             @RequestBody TaskDto dto,
             @AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();
@@ -47,8 +45,7 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/{taskId}/comments")
-    public CommentDto addComment(
-            @PathVariable Long taskId,
+    public CommentDto addComment(@PathVariable Long taskId,
             @RequestBody String content,
             @AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();

@@ -1,17 +1,17 @@
 package com.pm.project_manager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pm.project_manager.dto.RegisterRequest;
+import com.pm.project_manager.dto.UpdateUserRequest;
 import com.pm.project_manager.dto.UserDto;
 import com.pm.project_manager.model.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import com.pm.project_manager.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,9 +50,33 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    public UserDto getUserDtoByUsername(String username) {
+    public UserDto updateCurrentUser(String username, UpdateUserRequest request) {
         User user = getUserByUsername(username);
-        return mapToDto(user);
+
+        if (request.getNewPassword() != null && !request.getNewPassword().isEmpty()) {
+            if (request.getCurrentPassword() == null ||
+                    !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("Current password is incorrect");
+            }
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            user.setName(request.getName().trim());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            String newEmail = request.getEmail().trim();
+            userRepository.findByEmail(newEmail).ifPresent(existingUser -> {
+                if (!existingUser.getId().equals(user.getId())) {
+                    throw new RuntimeException("Email already in use");
+                }
+            });
+            user.setEmail(newEmail);
+        }
+
+        User updated = userRepository.save(user);
+        return mapToDto(updated);
     }
 
     private UserDto mapToDto(User user) {
@@ -62,5 +86,10 @@ public class UserService {
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         return dto;
+    }
+
+    public UserDto getUserDtoByUsername(String username) {
+        User user = getUserByUsername(username);
+        return mapToDto(user);
     }
 }

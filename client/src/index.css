@@ -1,1 +1,11 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
+@font-face {
+  font-family: "Noto Sans", sans-serif;
+  src: url(./assets/NotoSans-Regular.ttf);
+}
+
+* {
+  font-family: "Noto Sans", sans-serif;
+}

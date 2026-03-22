@@ -20,7 +20,7 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
 
-   @Transactional
+    @Transactional
     public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
         User creator = userService.getUserByUsername(creatorUsername);
 
@@ -54,8 +54,23 @@ public class ProjectService {
         return mapToDto(project);
     }
 
+    private boolean isProjectAdminOrManager(Long projectId, String username) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (project.getCreatedBy().getUsername().equals(username)) {
+            return true;
+        }
+        User user = userService.getUserByUsername(username);
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, user.getId())
+                .orElse(null);
+        return member != null && (member.getRole() == ProjectRole.ADMIN || member.getRole() == ProjectRole.MANAGER);
+    }
+
     @Transactional
-    public ProjectDto updateProject(Long id, ProjectDto dto) {
+    public ProjectDto updateProject(Long id, ProjectDto dto, String currentUsername) {
+        if (!isProjectAdminOrManager(id, currentUsername)) {
+            throw new RuntimeException("You don't have permission to update this project");
+        }
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
         project.setName(dto.getName());
@@ -64,7 +79,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long id) {
+    public void deleteProject(Long id, String currentUsername) {
+        if (!isProjectAdminOrManager(id, currentUsername)) {
+            throw new RuntimeException("You don't have permission to delete this project");
+        }
         projectRepository.deleteById(id);
     }
 
