@@ -74,7 +74,7 @@ class UserServiceTest {
         RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> userService.register(request));
 
-        assertEquals("Username already exists", ex.getMessage());
+        assertEquals("Username already exists!", ex.getMessage());
 
         verify(userRepository, never()).save(any());
     }

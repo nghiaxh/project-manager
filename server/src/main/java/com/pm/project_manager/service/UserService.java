@@ -7,7 +7,6 @@ import com.pm.project_manager.dto.RegisterRequest;
 import com.pm.project_manager.dto.UpdateUserRequest;
 import com.pm.project_manager.dto.UserDto;
 import com.pm.project_manager.model.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import com.pm.project_manager.repository.UserRepository;
 
 @Service
