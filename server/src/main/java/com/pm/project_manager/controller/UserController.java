@@ -29,7 +29,7 @@ public class UserController {
 
     @PutMapping("/me")
     public UserDto updateCurrentUser(@AuthenticationPrincipal UserDetails currentUser,
-            @RequestBody UpdateUserRequest request) {
+                                     @RequestBody UpdateUserRequest request) {
         return userService.updateCurrentUser(currentUser.getUsername(), request);
     }
 }

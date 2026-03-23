@@ -20,7 +20,6 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
 
-<<<<<<< HEAD
     @Transactional
     public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
         User creator = userService.getUserByUsername(creatorUsername);
