@@ -37,14 +37,13 @@ class AuthControllerIT {
 
     @BeforeEach
     void setup() {
-        // fake token để tránh lỗi JWT
+        // fake token
         when(jwtUtils.generateToken(any()))
                 .thenReturn("fake-token");
     }
 
-    // =========================
+
     // TEST REGISTER
-    // =========================
     @Test
     void register_shouldReturnUserInfo_withoutToken() throws Exception {
         RegisterRequest request = new RegisterRequest();
@@ -62,13 +61,11 @@ class AuthControllerIT {
                 .andExpect(jsonPath("$.token").doesNotExist());
     }
 
-    // =========================
     // TEST LOGIN SUCCESS
-    // =========================
     @Test
     void login_shouldReturnToken_whenValidCredentials() throws Exception {
 
-        // 1. register trước
+        // register trước
         RegisterRequest register = new RegisterRequest();
         register.setUsername("loginuser");
         register.setPassword("123456");
@@ -80,7 +77,7 @@ class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(register)))
                 .andExpect(status().isOk());
 
-        // 2. login
+        // login
         LoginRequest login = new LoginRequest();
         login.setUsername("loginuser");
         login.setPassword("123456");
@@ -93,9 +90,8 @@ class AuthControllerIT {
                 .andExpect(jsonPath("$.token").value("fake-token"));
     }
 
-    // =========================
+
     // TEST LOGIN FAIL
-    // =========================
     @Test
     void login_shouldFail_whenWrongPassword() throws Exception {
 
@@ -116,7 +112,7 @@ class AuthControllerIT {
         login.setUsername("failuser");
         login.setPassword("wrong");
 
-        // perform() sẽ throw ServletException — bắt trực tiếp ở đây
+        // throw ServletException
         Exception thrown = assertThrows(
                 jakarta.servlet.ServletException.class,
                 () -> mockMvc.perform(post("/api/auth/login")
@@ -124,7 +120,6 @@ class AuthControllerIT {
                         .content(objectMapper.writeValueAsString(login)))
         );
 
-        // ServletException wrap RuntimeException bên trong
         Throwable cause = thrown.getCause();
         assertInstanceOf(RuntimeException.class, cause);
         assertEquals("Invalid username/password", cause.getMessage());

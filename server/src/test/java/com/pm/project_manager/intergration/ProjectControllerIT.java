@@ -53,9 +53,8 @@ class ProjectControllerIT {
                 .build();
     }
 
-    // =========================
+
     // GET PROJECT LIST
-    // =========================
     @Test
     @WithMockUser(username = "testuser")
     void getUserProjects_shouldReturnList() throws Exception {
@@ -71,9 +70,7 @@ class ProjectControllerIT {
                 .andExpect(jsonPath("$[0].name").value("Test Project"));
     }
 
-    // =========================
     // CREATE PROJECT
-    // =========================
     @Test
     @WithMockUser(username = "testuser")
     void createProject_shouldReturnProject() throws Exception {
@@ -94,9 +91,8 @@ class ProjectControllerIT {
                 .andExpect(jsonPath("$.name").value("New Project"));
     }
 
-    // =========================
+
     // GET PROJECT BY ID
-    // =========================
     @Test
     @WithMockUser(username = "testuser", roles = {"MEMBER"})
     void getProject_shouldReturnProject() throws Exception {
@@ -108,14 +104,11 @@ class ProjectControllerIT {
                 .thenReturn(project);
 
         mockMvc.perform(get("/api/projects/1"))
-
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Detail Project"));
     }
 
-    // =========================
     // UPDATE PROJECT
-    // =========================
     @Test
     @WithMockUser(username = "testuser")
     void updateProject_shouldReturnUpdatedProject() throws Exception {
@@ -136,9 +129,7 @@ class ProjectControllerIT {
                 .andExpect(jsonPath("$.name").value("Updated Project"));
     }
 
-    // =========================
     // DELETE PROJECT
-    // =========================
     @Test
     @WithMockUser(username = "testuser")
     void deleteProject_shouldReturnOk() throws Exception {
@@ -146,9 +137,7 @@ class ProjectControllerIT {
                 .andExpect(status().isOk());
     }
 
-    // =========================
     // ADD MEMBER
-    // =========================
     @Test
     void addMember_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/api/projects/1/members")
@@ -156,18 +145,14 @@ class ProjectControllerIT {
                 .andExpect(status().isOk());
     }
 
-    // =========================
     // REMOVE MEMBER
-    // =========================
     @Test
     void removeMember_shouldReturnOk() throws Exception {
         mockMvc.perform(delete("/api/projects/1/members/2"))
                 .andExpect(status().isOk());
     }
 
-    // =========================
     // GET MEMBERS
-    // =========================
     @Test
     void getMembers_shouldReturnList() throws Exception {
         when(projectService.getMembers(1L))
