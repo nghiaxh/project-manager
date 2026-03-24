@@ -44,7 +44,6 @@ const addComment = async () => {
     if (!newComment.value.trim()) return;
     try {
         const comment = await apiAddComment(props.taskId, newComment.value);
-        emit('comment-added', comment);
         newComment.value = '';
     } catch (error) {
         push.error('Không thể thêm bình luận');
@@ -54,7 +53,6 @@ const addComment = async () => {
 const handleDeleteComment = async (commentId) => {
     try {
         await apiDeleteComment(commentId);
-        emit('comment-deleted', commentId);
         push.success('Đã xóa bình luận');
     } catch (error) {
         push.error('Không thể xóa bình luận');
