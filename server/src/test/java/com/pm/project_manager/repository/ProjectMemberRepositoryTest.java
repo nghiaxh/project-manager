@@ -11,6 +11,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+
 class ProjectMemberRepositoryTest {
 
     @Autowired
