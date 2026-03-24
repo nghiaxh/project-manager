@@ -1,9 +1,9 @@
 <template>
-    <div v-if=" loading ">Đang tải...</div>
+    <div v-if="loading">Đang tải...</div>
     <div v-else>
         <div class="bg-white p-6 rounded shadow">
             <div class="flex justify-between items-start">
-                <button @click="router.push( `/projects/${ task.projectId }` )" class="btn btn-soft">Quay lại</button>
+                <button @click="router.push(`/projects/${task.projectId}`)" class="btn btn-soft">Quay lại</button>
                 <div class="space-x-4">
                     <button @click="handleDeleteTask(taskId)" class="btn btn-error text-white">Xóa công việc</button>
                     <button @click="showEditModal = true" class="btn btn-primary">Chỉnh sửa thông
@@ -14,29 +14,27 @@
             <p class="text-gray-700 mt-4">{{ task.description }}</p>
             <div class="mt-8 grid gap-4 text-sm">
                 <div><span class="font-medium">Trạng thái:</span> {{ statusLabel }}</div>
-                <div><span class="font-medium">Hạn chót:</span> {{ new Date( task.deadline ).toLocaleDateString( "vi-VN"
+                <div><span class="font-medium">Hạn chót:</span> {{ new Date(task.deadline).toLocaleDateString("vi-VN"
                 )
                     }}</div>
                 <div><span class="font-medium">Người được giao việc:</span> {{ assignee?.name || 'Chưa gán' }}</div>
                 <div><span class="font-medium">Người tạo:</span> {{ creator?.name }}</div>
             </div>
-            <CommentSection :taskId=" task.id " :comments=" comments " :members=" members "
-                @comment-added=" handleCommentAdded " @comment-deleted="handleCommentDeleted" />
+            <CommentSection :taskId="task.id" :comments="comments" :members="members"
+                @comment-added="handleCommentAdded" @comment-deleted="handleCommentDeleted" />
         </div>
         <!-- Modal sửa task -->
-        <div v-if=" showEditModal "
-            class="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center">
+        <div v-if="showEditModal" class="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded w-96">
                 <h3 class="text-xl font-semibold mb-4 cursor-pointer">Sửa task</h3>
-                <TaskForm :initialData=" task " :members=" members " @submit=" updateTask "
-                    @cancel="showEditModal = false" />
+                <TaskForm :initialData="task" :members="members" @submit="updateTask" @cancel="showEditModal = false" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getTask, updateTask as updateTaskApi, deleteTask as deleteTaskApi, getComments } from '../services/taskService';
 import { getMembers } from '../services/projectService';
@@ -45,6 +43,7 @@ import CommentSection from '../components/CommentSection.vue';
 import TaskForm from '../components/TaskForm.vue';
 import { authState } from '../composables/useAuth';
 import { push } from "notivue";
+import { useWebSocket } from '../composables/useWebSocket';
 
 const route = useRoute();
 const router = useRouter();
@@ -67,12 +66,27 @@ const statusLabels = {
 
 const statusLabel = computed(() => statusLabels[task.value.status] || task.value.status);
 
+const handleCommentEvent = (data) => {
+    if (data.type === 'DELETE') {
+        comments.value = comments.value.filter(c => c.id !== data.id);
+    } else {
+        comments.value.push(data);
+    }
+};
+
+const { connect, disconnect } = useWebSocket(taskId, handleCommentEvent);
+
 onMounted(async () => {
     await loadTask();
     await loadComments();
     await loadMembers();
 
     loading.value = false;
+    connect();
+});
+
+onUnmounted(() => {
+    disconnect();
 });
 
 const loadTask = async () => {

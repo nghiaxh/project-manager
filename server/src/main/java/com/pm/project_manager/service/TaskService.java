@@ -7,6 +7,7 @@ import com.pm.project_manager.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class TaskService {
     private final ProjectMemberRepository projectMemberRepository;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public TaskDto createTask(Long projectId, TaskDto dto, String creatorUsername) {
@@ -127,6 +129,9 @@ public class TaskService {
                 notificationService.sendNotification(m.getUser().getId(), commentMsg);
             }
         });
+
+        CommentDto dto = mapCommentToDto(saved);
+        messagingTemplate.convertAndSend("/topic/tasks/" + taskId + "/comments", dto);
 
         return mapCommentToDto(saved);
     }
