@@ -9,6 +9,7 @@ import com.pm.project_manager.model.*;
 import com.pm.project_manager.repository.ProjectMemberRepository;
 import com.pm.project_manager.repository.ProjectRepository;
 import com.pm.project_manager.repository.UserRepository;
+import com.pm.project_manager.repository.TaskRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public ProjectDto createProject(ProjectDto projectDto, String creatorUsername) {
@@ -27,6 +29,7 @@ public class ProjectService {
         Project project = new Project();
         project.setName(projectDto.getName());
         project.setDescription(projectDto.getDescription());
+        project.setDeadline(projectDto.getDeadline());
         project.setCreatedBy(creator);
 
         Project saved = projectRepository.save(project);
@@ -75,6 +78,7 @@ public class ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
+        project.setDeadline(dto.getDeadline());
         return mapToDto(projectRepository.save(project));
     }
 
@@ -125,12 +129,23 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    private double calculateProgress(Long projectId) {
+        List<Task> tasks = taskRepository.findByProjectId(projectId);
+        long total = tasks.size();
+        if (total == 0)
+            return 0.0;
+        long done = tasks.stream().filter(t -> t.getStatus() == TaskStatus.DONE).count();
+        return (double) done / total * 100;
+    }
+
     private ProjectDto mapToDto(Project project) {
         ProjectDto dto = new ProjectDto();
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setDescription(project.getDescription());
         dto.setCreatedBy(project.getCreatedBy().getUsername());
+        dto.setDeadline(project.getDeadline());
+        dto.setProgress(calculateProgress(project.getId()));
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
         return dto;

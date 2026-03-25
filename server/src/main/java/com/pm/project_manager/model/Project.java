@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +27,8 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private LocalDate deadline;
+    
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;

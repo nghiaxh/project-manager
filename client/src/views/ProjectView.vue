@@ -1,62 +1,68 @@
 <template>
-    <div v-if=" project " class="space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+    <div v-if="project" class="space-y-6">
+        <div class="flex justify-between gap-4">
             <div class="flex items-center gap-4">
-                <button @click="router.push( '/projects' )" class="btn btn-soft">
+                <button @click="router.push('/projects')" class="btn btn-soft">
                     Quay lại
                 </button>
             </div>
-            <div class="flex items-center gap-3">
-                <div v-if=" canManage " class="flex items-center gap-2">
-                    <button @click=" openEditModal " class="btn btn-outline btn-warning">
+            <div class="flex items-center gap-4">
+                <div v-if="canManage" class="flex gap-2">
+                    <div class="btn">
+                        <span>Tiến độ dự án: {{ Math.round(project.progress || 0) }}%</span>
+                    </div>
+                    <button @click="openEditModal" class="btn btn-outline btn-warning">
                         Chỉnh sửa
                     </button>
-                    <button @click=" confirmDelete " class="btn btn-outline btn-error">
+                    <button @click="confirmDelete" class="btn btn-outline btn-error">
                         Xóa dự án
                     </button>
                 </div>
-                <button @click=" showMemberList " class="btn btn-soft">
-                    Thành viên
-                </button>
-                <button @click="router.push( `/projects/${ projectId }/statistics` )" class="btn btn-primary">Thống
-                    kê</button>
-                <button @click="showAddTask = true" class="btn btn-primary">
-                    Thêm công việc
-                </button>
+                <div class="flex gap-2">
+                    <button @click="showMemberList" class="btn btn-soft">
+                        Thành viên
+                    </button>
+                    <button @click="router.push(`/projects/${projectId}/statistics`)" class="btn btn-primary">Thống
+                        kê</button>
+                    <button @click="showAddTask = true" class="btn btn-primary">
+                        Thêm công việc
+                    </button>
+                </div>
             </div>
         </div>
         <h2 class="text-2xl font-bold">{{ project.name }}</h2>
         <p class="text-gray-600">{{ project.description }}</p>
-
+        <p class="text-gray-600">Deadline dự án: {{ project.deadline ? new
+            Date(project.deadline).toLocaleDateString('vi-VN') : 'Không có'
+            }}</p>
         <div class="bg-white p-4 rounded-lg shadow-sm space-y-3">
             <!-- Tìm kiếm -->
             <div class="flex items-center gap-2">
-                <input v-model=" searchQuery " type="text" placeholder="Tìm kiếm task theo tiêu đề hoặc mô tả..."
+                <input v-model="searchQuery" type="text" placeholder="Tìm kiếm task theo tiêu đề hoặc mô tả..."
                     class="input flex-1 outline-none" />
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center gap-1">
                     <button @click="filterStatus = 'ALL'" class="btn btn-soft"
-                        :class=" filterStatus === 'ALL' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200' ">
+                        :class="filterStatus === 'ALL' ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'">
                         Tất cả <span class="ml-1 text-xs opacity-75">({{ totalCount }})</span>
                     </button>
-                    <button v-for=" status in statuses " :key=" status " @click="filterStatus = status"
-                        class="btn btn-soft"
-                        :class=" filterStatus === status ? statusActiveClass( status ) : 'bg-gray-100 hover:bg-gray-200' ">
-                        {{ statusLabels[ status ] }} <span class="ml-1 text-xs opacity-75">({{ statusCounts[ status ]
+                    <button v-for="status in statuses" :key="status" @click="filterStatus = status" class="btn btn-soft"
+                        :class="filterStatus === status ? statusActiveClass(status) : 'bg-gray-100 hover:bg-gray-200'">
+                        {{ statusLabels[status] }} <span class="ml-1 text-xs opacity-75">({{ statusCounts[status]
                             }})</span>
                     </button>
                 </div>
 
-                <select v-model=" filterAssignee " class="select w-auto">
+                <select v-model="filterAssignee" class="select w-auto">
                     <option value="ALL">Tất cả người được gán</option>
-                    <option v-for=" member in members " :key=" member.userId " :value=" member.userId ">
+                    <option v-for="member in members" :key="member.userId" :value="member.userId">
                         {{ member.username }}
                     </option>
                 </select>
 
-                <select v-model=" sortBy " class="select w-auto">
+                <select v-model="sortBy" class="select w-auto">
                     <option value="deadline_asc">Hạn chót (gần nhất)</option>
                     <option value="deadline_desc">Hạn chót (xa nhất)</option>
                     <option value="title_asc">Tiêu đề (A-Z)</option>
@@ -66,42 +72,45 @@
             </div>
         </div>
 
-        <div v-if=" loading " class="text-center py-10">Đang tải...</div>
-        <div v-else-if=" filteredAndSortedTasks.length === 0 " class="text-center py-10 text-gray-500">
+        <div v-if="loading" class="text-center py-10">Đang tải...</div>
+        <div v-else-if="filteredAndSortedTasks.length === 0" class="text-center py-10 text-gray-500">
             Không tìm thấy công việc.
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <TaskCard v-for=" task in filteredAndSortedTasks " :key=" task.id " :task=" task "
-                @click="goToTask( task.id )" @status-change=" handleStatusChange " />
+            <TaskCard v-for="task in filteredAndSortedTasks" :key="task.id" :task="task" @click="goToTask(task.id)"
+                @status-change="handleStatusChange" />
         </div>
 
-        <div v-if=" showAddTask "
+        <div v-if="showAddTask"
             class="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-lg p-6 w-full max-w-md">
                 <h3 class="text-lg font-bold mb-4">Thêm task mới</h3>
-                <TaskForm :members=" members " @submit=" addTask " @cancel="showAddTask = false" />
+                <TaskForm :members="members" @submit="addTask" @cancel="showAddTask = false" />
             </div>
         </div>
 
-        <div v-if=" showEditModal "
+        <div v-if="showEditModal"
             class="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white p-6 rounded w-96">
                 <h3 class="text-xl font-semibold mb-4">Chỉnh sửa dự án</h3>
-                <form @submit.prevent=" onEditSubmit ">
+                <form @submit.prevent="onEditSubmit">
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-1">Tên dự án</label>
-                        <input v-model=" editName " type="text" required
-                            class="input w-full border rounded px-3 py-2" />
+                        <input v-model="editName" type="text" required class="input w-full border rounded px-3 py-2" />
                         <span class="text-red-500 text-sm">{{ editErrors.name }}</span>
                     </div>
                     <div class="mb-6">
                         <label class="block text-sm font-medium mb-1">Mô tả</label>
-                        <textarea v-model=" editDescription " rows="3"
+                        <textarea v-model="editDescription" rows="3"
                             class="input w-full border rounded px-3 py-2"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-1">Mô tả</label>
+                        <input v-model="editDeadline" type='date' class="input w-full border rounded px-3 py-2"></input>
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" @click="showEditModal = false" class="btn btn-soft">Hủy</button>
-                        <button type="submit" class="btn btn-primary" :disabled=" isEditing ">
+                        <button type="submit" class="btn btn-primary" :disabled="isEditing">
                             {{ isEditing ? 'Đang lưu...' : 'Lưu' }}
                         </button>
                     </div>
@@ -152,6 +161,7 @@ const { handleSubmit: handleEditSubmit, errors: editErrors, setValues: setEditVa
 });
 const { value: editName } = useField('name');
 const { value: editDescription } = useField('description');
+const { value: editDeadline } = useField('deadline');
 
 const statuses = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'];
 const statusLabels = {
