@@ -2,13 +2,13 @@
     <div class="mt-8">
         <h3 class="font-semibold mb-2">Bình luận</h3>
         <div class="space-y-2 mb-4 max-h-96 overflow-y-auto">
-            <div v-for=" comment in comments " :key=" comment.id " class="bg-base-200 p-2 rounded-xl">
+            <div v-for="comment in comments" :key="comment.id" class="bg-base-200 p-2 rounded-xl">
                 <div class="flex justify-between text-sm text-gray-600">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold">{{ comment.username }}</span>
-                        <span class="text-xs">{{ new Date( comment.createdAt ).toLocaleString() }}</span>
+                        <span class="font-bold">{{ comment.name || comment.username }}</span>
+                        <span class="text-xs">{{ new Date(comment.createdAt).toLocaleString() }}</span>
                     </div>
-                    <button v-if=" comment.userId === currentUserId " @click="handleDeleteComment( comment.id )"
+                    <button v-if="comment.userId === currentUserId" @click="handleDeleteComment(comment.id)"
                         class="text-red-500 hover:text-red-700 text-xs cursor-pointer" title="Xóa bình luận">
                         <Trash2 size="20" />
                     </button>
@@ -17,8 +17,8 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <input v-model=" newComment " type="text" placeholder="Thêm bình luận..." class="input w-full">
-            <button @click=" addComment " class="btn btn-primary w-16">Gửi</button>
+            <input v-model="newComment" type="text" placeholder="Thêm bình luận..." class="input w-full">
+            <button @click="addComment" class="btn btn-primary w-16">Gửi</button>
         </div>
     </div>
 </template>

@@ -9,5 +9,6 @@ public class ProjectMemberDto {
     private Long projectId;
     private Long userId;
     private String username;
+    private String name;
     private ProjectRole role;
 }
