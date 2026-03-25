@@ -9,6 +9,7 @@ import StatisticsView from '../views/StatisticsView.vue';
 import NotificationsView from '../views/NotificationsView.vue';
 import MemberListView from '../views/MemberListView.vue';
 import UserProfileView from '../views/UserProfileView.vue';
+import AdminView from '../views/AdminView.vue';
 
 const routes = [
     { path: '/', name: 'login', component: LoginView },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/projects/:id/statistics', name: 'statistics', component: StatisticsView, meta: { requiresAuth: true } },
     { path: '/tasks/:id', name: 'task', component: TaskDetailView, meta: { requiresAuth: true } },
     { path: '/notifications', name: 'notifications', component: NotificationsView, meta: { requiresAuth: true } },
+    { path: "/admin", name: "admin", component: AdminView, meta: { requiresAuth: true } },
     { path: '/profile', name: 'profile', component: UserProfileView, meta: { requiresAuth: true } }
 ];
 

@@ -19,13 +19,13 @@ public class AuthController {
     @PostMapping("/register")
     public AuthResponse register(@RequestBody RegisterRequest request) {
         UserDto user = userService.register(request);
-        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), null);
+        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), null, user.getRole());
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest request) {
         UserDto user = userService.login(request.getUsername(), request.getPassword());
         String token = jwtUtils.generateToken(user.getUsername());
-        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), token);
+        return new AuthResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), token, user.getRole());
     }
 }

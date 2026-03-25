@@ -12,10 +12,16 @@ export const authState = {
 
     async login(username, password) {
         const data = await apiLogin(username, password);
-        user.value = { id: data.userId, username: data.username, name: data.name, email: data.email };
+        user.value = {
+            id: data.userId,
+            username: data.username,
+            name: data.name,
+            email: data.email,
+            role: data.role
+        };
         token.value = data.token;
-        sessionStorage.setItem('user', JSON.stringify(user.value));
-        sessionStorage.setItem('token', token.value);
+        sessionStorage.setItem("user", JSON.stringify(user.value));
+        sessionStorage.setItem("token", token.value);
     },
 
     async register(userData) {

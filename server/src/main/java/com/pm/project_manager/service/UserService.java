@@ -1,6 +1,10 @@
 package com.pm.project_manager.service;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pm.project_manager.dto.RegisterRequest;
@@ -80,12 +84,60 @@ public class UserService {
         return mapToDto(updated);
     }
 
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public UserDto adminCreateUser(RegisterRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setRole("USER");
+        User saved = userRepository.save(user);
+        return mapToDto(saved);
+    }
+
+    public UserDto adminUpdateUser(Long id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (request.getName() != null)
+            user.setName(request.getName());
+        if (request.getEmail() != null) {
+            userRepository.findByEmail(request.getEmail()).ifPresent(existing -> {
+                if (!existing.getId().equals(id))
+                    throw new RuntimeException("Email already in use");
+            });
+            user.setEmail(request.getEmail());
+        }
+        if (request.getRole() != null)
+            user.setRole(request.getRole());
+        if (request.getNewPassword() != null && !request.getNewPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+        return mapToDto(userRepository.save(user));
+    }
+
+    public void adminDeleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
     private UserDto mapToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
         return dto;
     }
 

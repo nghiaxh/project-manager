@@ -2,16 +2,16 @@
     <div class="min-h-screen flex items-center justify-center bg-gray-100">
         <div class="bg-white p-8 rounded shadow-md w-96">
             <h2 class="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
-            <form @submit.prevent=" onSubmit ">
+            <form @submit.prevent="onSubmit">
                 <div class="mb-4">
                     <label class="label block text-sm font-medium mb-1">Tên đăng nhập</label>
-                    <input v-model=" username " type="text" required class="input w-full border rounded px-3 py-2"
+                    <input v-model="username" type="text" required class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập tên đăng nhập" />
                     <span class="text-red-500 text-sm">{{ errors.username }}</span>
                 </div>
                 <div class="mb-6">
                     <label class="label block text-sm font-medium mb-1">Mật khẩu</label>
-                    <input v-model=" password " type="password" required class="input w-full border rounded px-3 py-2"
+                    <input v-model="password" type="password" required class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập mật khẩu" />
                     <span class="text-red-500 text-sm">{{ errors.password }}</span>
                 </div>
@@ -26,7 +26,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { useRouter } from 'vue-router';
 import { authState } from '../composables/useAuth';
@@ -45,9 +44,14 @@ const router = useRouter();
 const onSubmit = handleSubmit(async (values) => {
     try {
         await authState.login(values.username, values.password);
-        router.push('/projects');
+        if (authState.user.value?.role === 'ADMIN') {
+            router.push('/admin');
+        } else {
+            router.push('/projects');
+        }
         push.success("Đăng nhập thành công");
     } catch (error) {
+        console.error(error)
         push.error('Đăng nhập thất bại');
     }
 });
