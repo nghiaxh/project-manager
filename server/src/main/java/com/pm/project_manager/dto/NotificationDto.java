@@ -9,5 +9,6 @@ public class NotificationDto {
     private String message;
     private Long userId;
     private boolean isRead;
+    private String link;
     private LocalDateTime createdAt;
 }

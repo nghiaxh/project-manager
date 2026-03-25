@@ -14,8 +14,8 @@
         <div v-if=" loading ">Đang tải...</div>
         <div v-else-if=" notifications.length === 0 " class="text-center text-gray-500">Không có thông báo nào.</div>
         <div v-else class="space-y-2">
-            <div v-for=" notif in notifications " :key=" notif.id "
-            class="bg-white p-4 rounded shadow flex justify-between items-start">
+            <router-link v-for=" notif in notifications " :key=" notif.id " :to="notif.link"
+            class="bg-white p-4 rounded shadow flex justify-between items-start hover:underline">
             <div class="flex-1">
                 <p :class=" { 'font-semibold': !notif.read } ">{{ notif.message }}</p>
                 <span class="text-xs text-gray-500">{{ formatDate( notif.createdAt ) }}</span>
@@ -29,7 +29,7 @@
                         <X></X>
                     </button>
                 </div>
-            </div>
+            </router-link>
         </div>
     </div>
 </template>

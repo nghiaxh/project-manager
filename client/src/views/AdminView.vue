@@ -28,9 +28,9 @@
                                 {{ user.role || 'Không xác định' }}
                             </span>
                         </td>
-                        <td class="px-4 py-2 text-center flex justify-around">
-                            <button @click="openEditModal(user)" class="text-blue-600 hover:underline mr-2">Sửa</button>
-                            <button @click="confirmDelete(user)" class="text-red-600 hover:underline">Xóa</button>
+                        <td class="px-4 py-2 text-center flex flex-row justify-evenly">
+                            <button @click="openEditModal(user)" class="btn btn-soft btn-primary">Sửa</button>
+                            <button @click="confirmDelete(user)" class="btn btn-soft btn-error">Xóa</button>
                         </td>
                     </tr>
                 </tbody>

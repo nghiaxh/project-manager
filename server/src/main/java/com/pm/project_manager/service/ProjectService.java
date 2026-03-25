@@ -20,6 +20,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
     private final TaskRepository taskRepository;
 
     @Transactional
@@ -106,6 +107,10 @@ public class ProjectService {
         member.setUser(user);
         member.setRole(ProjectRole.MEMBER);
         projectMemberRepository.save(member);
+
+        String link = "/projects/" + projectId;
+        String message = String.format("Bạn đã được thêm vào dự án: %s", project.getName());
+        notificationService.sendNotification(user.getId(), message, link);
     }
 
     @Transactional

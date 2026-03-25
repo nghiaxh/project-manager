@@ -25,13 +25,20 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
 
-    @Mock private TaskRepository taskRepository;
-    @Mock private ProjectRepository projectRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private CommentRepository commentRepository;
-    @Mock private ProjectMemberRepository projectMemberRepository;
-    @Mock private NotificationService notificationService;
-    @Mock private UserService userService;
+    @Mock
+    private TaskRepository taskRepository;
+    @Mock
+    private ProjectRepository projectRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private ProjectMemberRepository projectMemberRepository;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private TaskService taskService;
@@ -46,9 +53,12 @@ class TaskServiceTest {
         dto.setStatus(TaskStatus.TODO);
         dto.setAssigneeId(2L);
 
-        Project project = new Project(); project.setId(projectId);
-        User creator = new User(); creator.setId(1L);
-        User assignee = new User(); assignee.setId(2L);
+        Project project = new Project();
+        project.setId(projectId);
+        User creator = new User();
+        creator.setId(1L);
+        User assignee = new User();
+        assignee.setId(2L);
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(userService.getUserByUsername(username)).thenReturn(creator);
@@ -58,7 +68,7 @@ class TaskServiceTest {
         TaskDto result = taskService.createTask(projectId, dto, username);
 
         assertNotNull(result);
-        verify(notificationService).sendNotification(eq(2L), contains("Task"));
+        verify(notificationService).sendNotification(eq(2L), contains("Task"), anyString());
     }
 
     @Test
@@ -68,7 +78,6 @@ class TaskServiceTest {
         assertThrows(RuntimeException.class,
                 () -> taskService.createTask(1L, new TaskDto(), "hung"));
     }
-
 
     @Test
     void getTask_success() {
@@ -94,7 +103,6 @@ class TaskServiceTest {
                 () -> taskService.getTask(1L));
     }
 
-
     @Test
     void getTasksByProject_success() {
         Task task = new Task();
@@ -112,24 +120,17 @@ class TaskServiceTest {
         assertEquals(1, result.size());
     }
 
-
     @Test
     void updateTask_success_noStatusChange() {
-        // GIVEN
         Task task = new Task();
         task.setId(1L);
         task.setStatus(TaskStatus.TODO);
-
-        // set project
         Project project = new Project();
         project.setId(10L);
         task.setProject(project);
-
-        // createdBy
         User creator = new User();
         creator.setId(1L);
         task.setCreatedBy(creator);
-
         task.setTitle("Task");
 
         TaskDto dto = new TaskDto();
@@ -139,39 +140,31 @@ class TaskServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(taskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        // WHEN
         taskService.updateTask(1L, dto);
 
-        // THEN
-        verify(notificationService, never()).sendNotification(any(), any());
+        verify(notificationService, never()).sendNotification(anyLong(), anyString(), anyString());
     }
+
     @Test
     void updateTask_sendNotification_whenStatusChanged() {
-        // GIVEN
         Task task = new Task();
         task.setId(1L);
         task.setTitle("Task");
         task.setStatus(TaskStatus.TODO);
-
-        // set project
         Project project = new Project();
         project.setId(10L);
         task.setProject(project);
-
-        // set createdBy (tránh NullPointerException)
         User creator = new User();
         creator.setId(1L);
         task.setCreatedBy(creator);
-
         task.setAssignee(null);
 
         TaskDto dto = new TaskDto();
-        dto.setTitle("Task"); //tránh null overwrite
+        dto.setTitle("Task");
         dto.setStatus(TaskStatus.DONE);
 
         User user = new User();
         user.setId(2L);
-
         ProjectMember member = new ProjectMember();
         member.setUser(user);
 
@@ -180,12 +173,9 @@ class TaskServiceTest {
         when(projectMemberRepository.findByProjectId(10L))
                 .thenReturn(List.of(member));
 
-        // WHEN
         taskService.updateTask(1L, dto);
 
-        // THEN
-        verify(notificationService)
-                .sendNotification(eq(2L), contains("Hoàn thành"));
+        verify(notificationService).sendNotification(eq(2L), contains("Hoàn thành"), anyString());
     }
 
     @Test
@@ -196,29 +186,24 @@ class TaskServiceTest {
                 () -> taskService.updateTask(1L, new TaskDto()));
     }
 
-
     @Test
     void deleteTask_success() {
         taskService.deleteTask(1L);
-
         verify(taskRepository).deleteById(1L);
     }
-
 
     @Test
     void addComment_success_notifyOthers() {
         Task task = new Task();
         task.setId(1L);
-
-        Project project = new Project(); project.setId(10L);
+        Project project = new Project();
+        project.setId(10L);
         task.setProject(project);
-
         User user = new User();
         user.setId(1L);
         user.setUsername("hung");
-
-        User other = new User(); other.setId(2L);
-
+        User other = new User();
+        other.setId(2L);
         ProjectMember member = new ProjectMember();
         member.setUser(other);
 
@@ -230,17 +215,15 @@ class TaskServiceTest {
 
         taskService.addComment(1L, "hung", "Hello");
 
-        verify(notificationService).sendNotification(eq(2L), contains("Hello"));
+        verify(notificationService).sendNotification(eq(2L), contains("Hello"), anyString());
     }
 
     @Test
     void addComment_fail_taskNotFound() {
         when(taskRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(RuntimeException.class,
                 () -> taskService.addComment(1L, "hung", "Hello"));
     }
-
 
     @Test
     void getComments_success() {
@@ -248,7 +231,6 @@ class TaskServiceTest {
         c.setId(1L);
         c.setTask(new Task());
         c.getTask().setId(1L);
-
         User u = new User();
         u.setId(1L);
         u.setUsername("hung");
@@ -258,7 +240,6 @@ class TaskServiceTest {
                 .thenReturn(List.of(c));
 
         List<CommentDto> result = taskService.getComments(1L);
-
         assertEquals(1, result.size());
     }
 }
