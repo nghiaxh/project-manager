@@ -34,7 +34,7 @@
         <p class="text-gray-600">{{ project.description }}</p>
         <p class="text-gray-600">Deadline dự án: {{ project.deadline ? new
             Date(project.deadline).toLocaleDateString('vi-VN') : 'Không có'
-            }}</p>
+        }}</p>
         <div class="bg-white p-4 rounded-lg shadow-sm space-y-3">
             <!-- Tìm kiếm -->
             <div class="flex items-center gap-2">
@@ -51,7 +51,7 @@
                     <button v-for="status in statuses" :key="status" @click="filterStatus = status" class="btn btn-soft"
                         :class="filterStatus === status ? statusActiveClass(status) : 'bg-gray-100 hover:bg-gray-200'">
                         {{ statusLabels[status] }} <span class="ml-1 text-xs opacity-75">({{ statusCounts[status]
-                            }})</span>
+                        }})</span>
                     </button>
                 </div>
 
@@ -130,7 +130,6 @@ import { getProject, getMembers as apiGetMembers, updateProject, deleteProject }
 import { getTasksByProject, createTask, updateTask } from '../services/taskService';
 import { push } from 'notivue';
 import { authState } from '../composables/useAuth';
-import { MoveLeft } from "lucide-vue-next";
 import { useForm, useField } from "vee-validate";
 import { projectSchema } from "../validation/projectValidation";
 
