@@ -10,17 +10,23 @@
             <button @click="addMember" class="btn btn-primary">Thêm thành viên</button>
         </div>
         <div v-if="loading">Đang tải...</div>
-        <div v-else class="bg-white rounded shadow">
+        <div v-else class="bg-white rounded shadow overflow-hidden">
+            <div class="grid grid-cols-3 bg-gray-100 p-3 font-semibold border-b">
+                <div class="mx-4">Tên thành viên</div>
+                <div>Vai trò</div>
+                <div>Hành động</div>
+            </div>
             <div v-for="member in members" :key="member.userId"
-                class="flex justify-between items-center p-4 border-b last:border-b-0">
+                class="grid grid-cols-3 items-center p-3 border-b last:border-b-0 hover:bg-gray-50">
+                <div class="font-medium mx-4">{{ member.name || member.username }}</div>
+                <div v-if="member.role === 'MANAGER'" class="text-sm text-indigo-600 font-bold">Quản lý</div>
+                <div v-else class="text-sm text-gray-500 font-bold">Thành viên</div>
                 <div>
-                    <span class="font-medium">{{ member.name || member.username }}</span>
-                    <span class="ml-2 text-sm text-gray-600">({{ statusLabels[member.role] }})</span>
+                    <button v-if="currentUserRole === 'MANAGER' && member.userId !== currentUserId"
+                        @click="removeMember(member.userId)" class="btn btn-soft btn-error">
+                        Xóa
+                    </button>
                 </div>
-                <button v-if="currentUserRole === 'MANAGER' && member.userId !== currentUserId"
-                    @click="removeMember(member.userId)" class="text-red-500 hover:underline cursor-pointer">
-                    Xóa
-                </button>
             </div>
         </div>
     </div>

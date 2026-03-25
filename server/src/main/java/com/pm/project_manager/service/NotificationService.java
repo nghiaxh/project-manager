@@ -20,7 +20,7 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public void sendNotification(Long userId, String message) {
+    public void sendNotification(Long userId, String message, String link) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
@@ -28,6 +28,7 @@ public class NotificationService {
         notif.setMessage(message);
         notif.setUser(user);
         notif.setRead(false);
+        notif.setLink(link);
         notificationRepository.save(notif);
     }
 

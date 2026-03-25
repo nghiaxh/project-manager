@@ -48,9 +48,9 @@ public class TaskService {
         Task saved = taskRepository.save(task);
 
         if (saved.getAssignee() != null) {
-            notificationService.sendNotification(
-                    saved.getAssignee().getId(),
-                    "Bạn được giao công việc: " + saved.getTitle());
+            String link = "/tasks/" + saved.getId();
+            String message = String.format("Bạn được giao công việc: %s", saved.getTitle());
+            notificationService.sendNotification(saved.getAssignee().getId(), message, link);
         }
 
         return mapToDto(saved);
@@ -91,12 +91,12 @@ public class TaskService {
 
         if (oldStatus != updated.getStatus()) {
             String statusText = getStatusText(updated.getStatus());
+            String link = "/tasks/" + updated.getId();
             String message = String.format("Công việc '%s' đã chuyển sang trạng thái: %s",
                     updated.getTitle(), statusText);
-
             List<ProjectMember> members = projectMemberRepository.findByProjectId(updated.getProject().getId());
             for (ProjectMember member : members) {
-                notificationService.sendNotification(member.getUser().getId(), message);
+                notificationService.sendNotification(member.getUser().getId(), message, link);
             }
         }
 
@@ -121,14 +121,14 @@ public class TaskService {
 
         Comment saved = commentRepository.save(comment);
 
-        String commentMsg = String.format("%s đã bình luận: %s", user.getUsername(),
-                content);
+        String link = "/tasks/" + taskId;
+        String commentMsg = String.format("%s đã bình luận: %s", user.getName(), content);
         List<ProjectMember> members = projectMemberRepository.findByProjectId(task.getProject().getId());
-        members.forEach(m -> {
-            if (!m.getUser().getId().equals(user.getId())) {
-                notificationService.sendNotification(m.getUser().getId(), commentMsg);
+        for (ProjectMember member : members) {
+            if (!member.getUser().getId().equals(user.getId())) {
+                notificationService.sendNotification(member.getUser().getId(), commentMsg, link);
             }
-        });
+        }
 
         CommentDto dto = mapCommentToDto(saved);
         messagingTemplate.convertAndSend("/topic/tasks/" + taskId + "/comments", dto);

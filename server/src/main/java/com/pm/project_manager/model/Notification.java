@@ -25,6 +25,8 @@ public class Notification {
     @Column(name = "is_read")
     private Boolean read = false;
 
+    private String link;
+
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
