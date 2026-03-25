@@ -27,14 +27,13 @@
                             </span>
                             <span class="text-xs text-gray-500">
                                 Deadline: {{ project.deadline ? new Date(project.deadline).toLocaleDateString('vi-VN') :
-                                'Không có' }}</span>
+                                    'Không có' }}</span>
                         </div>
                     </div>
                 </router-link>
             </div>
         </div>
 
-        <!-- Modal tạo dự án (giữ nguyên) -->
         <div v-if="showCreateModal"
             class="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded w-96">
@@ -42,7 +41,7 @@
                 <form @submit.prevent="onSubmit">
                     <div class="mb-4">
                         <label class="label block text-sm font-medium mb-1">Tên dự án</label>
-                        <input v-model="name" type="text" required class="input w-full border rounded px-3 py-2"
+                        <input v-model="name" type="text" class="input w-full border rounded px-3 py-2"
                             placeholder="Tên dự án" />
                         <span class="text-red-500 text-sm">{{ errors.name }}</span>
                     </div>
@@ -50,10 +49,12 @@
                         <label class="label block text-sm font-medium mb-1">Mô tả</label>
                         <textarea v-model="description" rows="3" class="input w-full border rounded px-3 py-2"
                             placeholder="Mô tả dự án"></textarea>
+                        <span class="text-red-500 text-sm">{{ errors.description }}</span>
                     </div>
                     <div class="mb-4">
-                        <label class="label block text-sm font-medium mb-1">Hạn chót</label>
+                        <label class="label block text-sm font-medium mb-1">Deadline</label>
                         <input v-model="deadline" type="date" class="input w-full border rounded px-3 py-2" />
+                        <span class="text-red-500 text-sm">{{ errors.deadline }}</span>
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" @click="showCreateModal = false" class="btn btn-soft">Hủy</button>
@@ -80,6 +81,11 @@ const searchQuery = ref('');
 
 const { handleSubmit, errors } = useForm({
     validationSchema: projectSchema,
+    initialValues: {
+        name: '',
+        description: '',
+        deadline: ''
+    }
 });
 
 const { value: name } = useField('name');

@@ -9,6 +9,7 @@ public class CommentDto {
     private String content;
     private Long taskId;
     private Long userId;
+    private String name;
     private String username;
     private LocalDateTime createdAt;
 }

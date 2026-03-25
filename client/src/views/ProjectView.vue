@@ -96,7 +96,7 @@
                 <form @submit.prevent="onEditSubmit">
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-1">Tên dự án</label>
-                        <input v-model="editName" type="text" required class="input w-full border rounded px-3 py-2" />
+                        <input v-model="editName" type="text" class="input w-full border rounded px-3 py-2" />
                         <span class="text-red-500 text-sm">{{ editErrors.name }}</span>
                     </div>
                     <div class="mb-6">

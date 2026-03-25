@@ -178,6 +178,7 @@ public class TaskService {
         dto.setContent(comment.getContent());
         dto.setTaskId(comment.getTask().getId());
         dto.setUserId(comment.getUser().getId());
+        dto.setName(comment.getUser().getName());
         dto.setUsername(comment.getUser().getUsername());
         dto.setCreatedAt(comment.getCreatedAt());
         return dto;

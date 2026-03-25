@@ -156,6 +156,7 @@ public class ProjectService {
         dto.setId(pm.getId());
         dto.setProjectId(pm.getProject().getId());
         dto.setUserId(pm.getUser().getId());
+        dto.setName(pm.getUser().getName());
         dto.setUsername(pm.getUser().getUsername());
         dto.setRole(pm.getRole());
         return dto;

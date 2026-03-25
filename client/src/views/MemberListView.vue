@@ -14,7 +14,7 @@
             <div v-for="member in members" :key="member.userId"
                 class="flex justify-between items-center p-4 border-b last:border-b-0">
                 <div>
-                    <span class="font-medium">{{ member.username }}</span>
+                    <span class="font-medium">{{ member.name || member.username }}</span>
                     <span class="ml-2 text-sm text-gray-600">({{ statusLabels[member.role] }})</span>
                 </div>
                 <button v-if="currentUserRole === 'MANAGER' && member.userId !== currentUserId"
