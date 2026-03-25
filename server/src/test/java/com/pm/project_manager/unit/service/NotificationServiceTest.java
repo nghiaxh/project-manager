@@ -19,20 +19,20 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
     @Mock
     private NotificationRepository notificationRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private UserService userService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private NotificationService notificationService;
-
 
     @Test
     void sendNotification_success() {
@@ -41,29 +41,24 @@ class NotificationServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        notificationService.sendNotification(1L, "Hello");
+        notificationService.sendNotification(1L, "Hello", null);
 
-        verify(notificationRepository).save(argThat(n ->
-                n.getUser().getId().equals(1L)
-                        && n.getMessage().equals("Hello")
-                        && !n.getRead()
-        ));
+        verify(notificationRepository).save(argThat(n -> n.getUser().getId().equals(1L)
+                && n.getMessage().equals("Hello")
+                && !n.getRead()));
     }
 
     @Test
     void sendNotification_fail_userNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(RuntimeException.class,
-                () -> notificationService.sendNotification(1L, "Hello"));
+                () -> notificationService.sendNotification(1L, "Hello", null));
     }
-
 
     @Test
     void getUserNotifications_success() {
         User user = new User();
         user.setId(1L);
-
         Notification notif = new Notification();
         notif.setId(10L);
         notif.setMessage("Hi");
@@ -97,20 +92,16 @@ class NotificationServiceTest {
     @Test
     void markAsRead_fail_notFound() {
         when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(RuntimeException.class,
                 () -> notificationService.markAsRead(1L));
     }
-
 
     @Test
     void markAllAsRead_success() {
         User user = new User();
         user.setId(1L);
-
         Notification n1 = new Notification();
         n1.setRead(false);
-
         Notification n2 = new Notification();
         n2.setRead(false);
 
@@ -122,23 +113,19 @@ class NotificationServiceTest {
 
         assertTrue(n1.getRead());
         assertTrue(n2.getRead());
-
         verify(notificationRepository).saveAll(any());
     }
-
 
     @Test
     void deleteNotification_success() {
         User user = new User();
         user.setUsername("hung");
-
         Notification notif = new Notification();
         notif.setUser(user);
 
         when(notificationRepository.findById(1L)).thenReturn(Optional.of(notif));
 
         notificationService.deleteNotification(1L, "hung");
-
         verify(notificationRepository).delete(notif);
     }
 
@@ -146,7 +133,6 @@ class NotificationServiceTest {
     void deleteNotification_fail_notOwner() {
         User user = new User();
         user.setUsername("other");
-
         Notification notif = new Notification();
         notif.setUser(user);
 
@@ -159,17 +145,14 @@ class NotificationServiceTest {
     @Test
     void deleteNotification_fail_notFound() {
         when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(RuntimeException.class,
                 () -> notificationService.deleteNotification(1L, "hung"));
     }
-
 
     @Test
     void deleteReadNotifications_success() {
         User user = new User();
         user.setId(1L);
-
         Notification n1 = new Notification();
         Notification n2 = new Notification();
 
