@@ -1,6 +1,6 @@
 <template>
     <aside class="flex flex-col min-h-screen bg-base-100 shadow-sm border-r border-base-200 transition-all duration-300"
-        :class="isCollapsed ? 'w-20' : 'w-80'">
+        :class="isCollapsed ? 'w-20' : 'w-60'">
         <!-- Header với nút toggle -->
         <div class="flex items-center justify-between px-5 py-5 border-b border-base-200">
             <div v-if="!isCollapsed" class="flex items-center gap-2">

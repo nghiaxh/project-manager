@@ -12,8 +12,7 @@ const app = createApp(App);
 const notivue = createNotivue({
     position: 'top-center',
     limit: 2,
-    enqueue: true,
-
+    enqueue: true
 });
 app.use(notivue);
 app.use(router);
