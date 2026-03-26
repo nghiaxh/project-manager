@@ -5,25 +5,25 @@
             <form @submit.prevent=" onSubmit ">
                 <div class="mb-4">
                     <label class="label block text-sm font-medium mb-1">Họ tên</label>
-                    <input v-model=" name " type="text" required class="input w-full border rounded px-3 py-2"
+                    <input v-model=" name " type="text" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập họ tên" />
                     <span class="text-red-500 text-sm">{{ errors.name }}</span>
                 </div>
                 <div class="mb-4">
                     <label class="label block text-sm font-medium mb-1">Tên đăng nhập</label>
-                    <input v-model=" username " type="text" required class="input w-full border rounded px-3 py-2"
+                    <input v-model=" username " type="text" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập tên đăng nhập" />
                     <span class="text-red-500 text-sm">{{ errors.username }}</span>
                 </div>
                 <div class="mb-4">
                     <label class="label block text-sm font-medium mb-1">Email</label>
-                    <input v-model=" email " type="email" required class="input w-full border rounded px-3 py-2"
+                    <input v-model=" email " type="email" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập địa chỉ email" />
                     <span class="text-red-500 text-sm">{{ errors.email }}</span>
                 </div>
                 <div class="mb-6">
                     <label class="label block text-sm font-medium mb-1" placeholder="Nhập mật khẩu">Mật khẩu</label>
-                    <input v-model=" password " type="password" required class="input w-full border rounded px-3 py-2"
+                    <input v-model=" password " type="password" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập mật khẩu" />
                     <span class="text-red-500 text-sm">{{ errors.password }}</span>
                 </div>

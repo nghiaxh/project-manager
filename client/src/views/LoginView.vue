@@ -5,13 +5,13 @@
             <form @submit.prevent="onSubmit">
                 <div class="mb-4">
                     <label class="label block text-sm font-medium mb-1">Tên đăng nhập</label>
-                    <input v-model="username" type="text" required class="input w-full border rounded px-3 py-2"
+                    <input v-model="username" type="text" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập tên đăng nhập" />
                     <span class="text-red-500 text-sm">{{ errors.username }}</span>
                 </div>
                 <div class="mb-6">
                     <label class="label block text-sm font-medium mb-1">Mật khẩu</label>
-                    <input v-model="password" type="password" required class="input w-full border rounded px-3 py-2"
+                    <input v-model="password" type="password" class="input w-full border rounded px-3 py-2"
                         placeholder="Nhập mật khẩu" />
                     <span class="text-red-500 text-sm">{{ errors.password }}</span>
                 </div>

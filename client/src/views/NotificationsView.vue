@@ -82,8 +82,6 @@ onMounted(async () => {
     loading.value = false;
 });
 
-console.log(notifications)
-
 const markAsRead = async (id) => {
     await apiMarkAsRead(id);
     await loadNotifications();

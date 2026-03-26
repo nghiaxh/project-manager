@@ -19,8 +19,8 @@
             <div v-for="member in members" :key="member.userId"
                 class="grid grid-cols-3 items-center p-3 border-b last:border-b-0 hover:bg-gray-50">
                 <div class="font-medium mx-4">{{ member.name || member.username }}</div>
-                <div v-if="member.role === 'MANAGER'" class="text-sm text-indigo-600 font-bold">Quản lý</div>
-                <div v-else class="text-sm text-gray-500 font-bold">Thành viên</div>
+                <div v-if="member.role === 'MANAGER'" class="badge badge-primary">Quản lý</div>
+                <div v-else class="badge badge-ghost">Thành viên</div>
                 <div>
                     <button v-if="currentUserRole === 'MANAGER' && member.userId !== currentUserId"
                         @click="removeMember(member.userId)" class="btn btn-soft btn-error">
@@ -53,11 +53,6 @@ const currentUserRole = computed(() => {
 const loading = ref(true);
 const members = ref([]);
 const newMemberUsername = ref('');
-
-const statusLabels = {
-    MANAGER: 'Quản lý',
-    MEMBER: 'Thành viên',
-};
 
 onMounted(async () => {
     await loadMembers();

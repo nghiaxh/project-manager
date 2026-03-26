@@ -102,11 +102,13 @@
                     <div class="mb-6">
                         <label class="block text-sm font-medium mb-1">Mô tả</label>
                         <textarea v-model="editDescription" rows="3"
-                            class="input w-full border rounded px-3 py-2"></textarea>
+                        class="input w-full border rounded px-3 py-2"></textarea>
+                        <span class="text-red-500 text-sm">{{ editErrors.description }}</span>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-1">Mô tả</label>
+                        <label class="block text-sm font-medium mb-1">Deadline</label>
                         <input v-model="editDeadline" type='date' class="input w-full border rounded px-3 py-2"></input>
+                        <span class="text-red-500 text-sm">{{ editErrors.deadline }}</span>
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" @click="showEditModal = false" class="btn btn-soft">Hủy</button>
@@ -122,7 +124,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TaskCard from '../components/TaskCard.vue';
 import TaskForm from '../components/TaskForm.vue';
@@ -250,7 +252,8 @@ const canManage = computed(() => {
 const openEditModal = () => {
     setEditValues({
         name: project.value.name,
-        description: project.value.description || ''
+        description: project.value.description || '',
+        deadline: project.value.deadline ? new Date(project.value.deadline).toISOString().split('T')[0] : ''
     });
     showEditModal.value = true;
 };
