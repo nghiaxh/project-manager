@@ -25,6 +25,10 @@ public class TaskService {
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    private String getTaskLink(Task task) {
+        return "/tasks/" + task.getId();
+    }
+
     @Transactional
     public TaskDto createTask(Long projectId, TaskDto dto, String creatorUsername) {
         Project project = projectRepository.findById(projectId)
@@ -48,9 +52,11 @@ public class TaskService {
         Task saved = taskRepository.save(task);
 
         if (saved.getAssignee() != null) {
-            String link = "/tasks/" + saved.getId();
-            String message = String.format("Bạn được giao công việc: %s", saved.getTitle());
-            notificationService.sendNotification(saved.getAssignee().getId(), message, link);
+            String link = getTaskLink(saved);
+            notificationService.sendNotification(
+                    saved.getAssignee().getId(),
+                    "Bạn được giao công việc: " + saved.getTitle(),
+                    link);
         }
 
         return mapToDto(saved);
@@ -91,7 +97,7 @@ public class TaskService {
 
         if (oldStatus != updated.getStatus()) {
             String statusText = getStatusText(updated.getStatus());
-            String link = "/tasks/" + updated.getId();
+            String link = getTaskLink(updated);
             String message = String.format("Công việc '%s' đã chuyển sang trạng thái: %s",
                     updated.getTitle(), statusText);
             List<ProjectMember> members = projectMemberRepository.findByProjectId(updated.getProject().getId());
@@ -121,7 +127,7 @@ public class TaskService {
 
         Comment saved = commentRepository.save(comment);
 
-        String link = "/tasks/" + taskId;
+        String link = getTaskLink(task);
         String commentMsg = String.format("%s đã bình luận: %s", user.getName(), content);
         List<ProjectMember> members = projectMemberRepository.findByProjectId(task.getProject().getId());
         for (ProjectMember member : members) {

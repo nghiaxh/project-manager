@@ -77,6 +77,7 @@ public class NotificationService {
         dto.setMessage(notif.getMessage());
         dto.setUserId(notif.getUser().getId());
         dto.setRead(notif.getRead());
+        dto.setLink(notif.getLink());
         dto.setCreatedAt(notif.getCreatedAt());
         return dto;
     }
