@@ -4,6 +4,25 @@
 
 ## Cài Đặt
 
+### Các yêu cầu
+
+- JDK 21+
+- Rustup, Build tools (MSVC hoặc GNU)
+- NodeJS
+- Docker
+- Code Editor
+
+### Cấu hình Docker Database
+
+Kéo MySQL về máy
+```bash
+docker pull mysql:8.0
+```
+
+Chạy container với các tham số
+```bash
+docker run -d --name project-manager -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 mysql:8.0
+```
 ### 1. Clone Repository
 
 ```bash
